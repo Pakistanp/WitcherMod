@@ -2799,7 +2799,10 @@ stock RefillAmmo(client)
 }
 stock SetArmor(client)
 {
-	SetEntProp( client, Prop_Send, "m_ArmorValue", 100, 1 );
+	if(playerClass[client] == 12)
+	{
+		SetEntProp( client, Prop_Send, "m_ArmorValue", 100, 1 );
+	}
 }
 stock CacheClipSize(client_index, const String:sz_item[])
 {
