@@ -134,7 +134,7 @@ new const String:Class[13][] ={
 "Keira",
 "Felippa",
 "Fringilla(Vip)",
-"Ga'els"
+"Ge'els"
 }
 new const ClassHP[13] = {
 100,
@@ -202,6 +202,22 @@ new playerHealOption[MAXPLAYERS+1];
 
 int revivingTarget[MAXPLAYERS + 1];
 new decoyEntity[MAXPLAYERS + 1] = {-1, ...};
+
+new g_iClip1 = -1;
+new g_hActiveWeapon = -1;
+
+new g_PlayerPrimaryAmmo[MAXPLAYERS+1] = {0, ...};
+new g_PlayerSecondaryAmmo[MAXPLAYERS+1] = {0, ...};
+
+enum Slots
+{
+	Slot_Primary,
+	Slot_Secondary,
+	Slot_Knife,
+	Slot_Grenade,
+	Slot_C4,
+	Slot_None
+};
 
 new skillColor[5][4] = {
 {0,0,0,0},
@@ -310,6 +326,12 @@ public void OnPluginStart()
 		SQL_Start();
 	}
 
+	g_hActiveWeapon = FindSendPropInfo("CCSPlayer", "m_hActiveWeapon");
+	//g_iPrimaryAmmoType = FindSendPropInfo("CBaseCombatWeapon", "m_iPrimaryAmmoType");
+	g_iClip1 = FindSendPropInfo("CBaseCombatWeapon", "m_iClip1");
+	// if (g_hActiveWeapon == -1 || g_iPrimaryAmmoType == -1 || g_iAmmo == -1 || g_iClip1 == -1)
+		// SetFailState("Failed to retrieve entity member offsets");
+	
 	RegConsoleCmd("klasa", Command_Class);
 	RegConsoleCmd("class", Command_Class);
 	RegConsoleCmd("reset", Command_Reset);
@@ -332,6 +354,7 @@ public void OnPluginStart()
 	HookEvent("decoy_started", Event_DecoyStarted );
 	HookEvent("decoy_detonate", Event_DecoyDetonate );
 	//HookEvent( "player_use", Event_PlayerUse );
+	HookEvent("item_pickup", Event_ItemPickup);
 	
 	HookEvent("player_hurt", Event_PlayerHurt, EventHookMode_Post);
 	DamageEventName = "dmg_health";
@@ -1004,6 +1027,7 @@ public Action:Event_PlayerChangeTeam(Handle:hEvent, const String:strName[], bool
 
 		SetHud(client);
 }
+
 public Action:Event_PlayerSpawn(Handle:hEvent, const String:strName[], bool:bBroadcast)
 {
 	new client = GetClientOfUserId(GetEventInt(hEvent, "userid"));
@@ -1031,8 +1055,31 @@ public Action:Event_PlayerSpawn(Handle:hEvent, const String:strName[], bool:bBro
 		{
 			healHandle[client] = CreateTimer(5.0, HealTimer, client, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 		}
+		if(playerClass[client] == 12)
+		{
+			new String:sz_classname[32];
+			new entity_index = GetPlayerWeaponSlot(client, _:Slot_Primary);
+			if (IsValidEdict(entity_index))
+			{
+				GetEdictClassname(entity_index, sz_classname, sizeof(sz_classname));
+				CacheClipSize(client, sz_classname[7]);
+			}
+			entity_index = GetPlayerWeaponSlot(client, _:Slot_Secondary);
+			if (IsValidEdict(entity_index))
+			{
+				GetEdictClassname(entity_index, sz_classname, sizeof(sz_classname));
+				CacheClipSize(client, sz_classname[7]);
+			}
+		}
 		//CheckStats(client);
 	}
+}
+
+public Event_ItemPickup(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	new String:sz_item[32];
+	GetEventString(event, "item", sz_item, sizeof(sz_item));
+	CacheClipSize(GetClientOfUserId(GetEventInt(event, "userid")), sz_item);
 }
 
 public Action:Event_BombPlanted(Handle:hEvent, const String:strName[], bool:bBroadcast)
@@ -1254,7 +1301,7 @@ public float MultipleKillsSeries(client)
 
 public float MultipleUniqueClass(client)
 {
-	new classCount[12];
+	new classCount[13];
 	classCount = GetPlayersClassesCount();
 	if(classCount[playerClass[client]] > 2)
 		return 0.0;
@@ -1379,6 +1426,8 @@ public Action:Event_PlayerDeath(Handle:hEvent, const String:strName[], bool:bBro
 		playerToSetPoints[attacker] = CheckNewLevel(attacker);
 		playerKillLastRoundCount[attacker] ++;
 		playerKillExpLastRound[attacker][playerKillLastRoundCount[attacker]] = exp;
+		
+		RefillAmmo(attacker);
 		
 		new String:name[64];
 		GetClientName(victim, name, sizeof(name));
@@ -2711,7 +2760,7 @@ stock int GetRealClientCount()
 }  
 stock int[] GetPlayersClassesCount()
 {
-	new classCount[12]; 
+	new classCount[13]; 
 	for (new i = 1; i <= MaxClients; i++) 
 	{
 		classCount[playerClass[i]]++;
@@ -2727,6 +2776,71 @@ stock ScreenShake(client, Float:duration=0.5, Float:amplitude=30.0, Float:freque
 	PbSetFloat(message, "duration", duration);
 	EndMessage();
 }  
+
+stock RefillAmmo(client)
+{
+	if(playerClass[client] == 12)
+	{
+	PrintToChat(client,"ammo");
+		new clip;
+		new entity_index = GetEntDataEnt2(client, g_hActiveWeapon);
+		if (IsValidEdict(client))
+		{
+			if (entity_index == GetPlayerWeaponSlot(client, _:Slot_Primary))
+				clip = g_PlayerPrimaryAmmo[client];
+			else if (entity_index == GetPlayerWeaponSlot(client, _:Slot_Secondary))
+				clip = g_PlayerSecondaryAmmo[client];
+
+			if (clip)
+				SetEntData(entity_index, g_iClip1, clip, 4, true);
+		}
+	}
+}
+stock CacheClipSize(client_index, const String:sz_item[])
+{
+	// Convert first 4 characters of item into an integer for fast comparison (big endian byte ordering)
+	// sizeof(sz_item) must be >= 4
+	new gun = (sz_item[0] << 24) + (sz_item[1] << 16) + (sz_item[2] << 8) + (sz_item[3]);
+
+	if  (gun==0x6D616737)													// mag7
+		g_PlayerPrimaryAmmo[client_index]=5;
+	else if  (gun==0x786D3130 || gun==0x73617765)							// xm1014,  sawedoff
+		g_PlayerPrimaryAmmo[client_index]=7;
+	else if  (gun==0x6D330000 || gun==0x6E6F7661)							// m3,  nova
+		g_PlayerPrimaryAmmo[client_index]=8;
+	else if  (gun==0x73636F75 || gun==0x61777000 || gun==0x73736730)		// scout,  awp,  ssg08
+		g_PlayerPrimaryAmmo[client_index]=10;
+	else if  (gun==0x67337367 || gun==0x73636172)							// g3sg1,  scar20
+		g_PlayerPrimaryAmmo[client_index]=20;
+	else if  (gun==0x66616D61 || gun==0x756D7034)							// famas,  ump45
+		g_PlayerPrimaryAmmo[client_index]=25;
+	// ak47,  aug,  m4a1,  sg550,  mp5navy,  tmp,  mac10,  mp7,  mp9
+	else if  (gun==0x616B3437 || gun==0x61756700 || gun==0x6D346131 || gun==0x73673535
+		|| gun==0x6D70356E || gun==0x746D7000 || gun==0x6D616331 || gun==0x6D703700 || gun==0x6D703900)
+		g_PlayerPrimaryAmmo[client_index]=30;
+	else if  (gun==0x67616C69)												// galil
+		g_PlayerPrimaryAmmo[client_index]=35;
+	else if  (gun==0x70393000)												// p90
+		g_PlayerPrimaryAmmo[client_index]=50;
+	else if  (gun==0x62697A6F)												// bizon
+		g_PlayerPrimaryAmmo[client_index]=64;
+	else if  (gun==0x6D323439)												// m249
+		g_PlayerPrimaryAmmo[client_index]=100;
+	else if  (gun==0x6E656765)												// negev
+		g_PlayerPrimaryAmmo[client_index]=150;
+	else if  (gun==0x64656167)												// deagle
+		g_PlayerSecondaryAmmo[client_index]=7;
+	else if  (gun==0x75737000)												// usp
+		g_PlayerSecondaryAmmo[client_index]=12;
+	else if  (gun==0x70323238 || gun==0x686B7032 || gun==0x70323530)		// p228,  hkp2000,  p250
+		g_PlayerSecondaryAmmo[client_index]=13;
+	else if  (gun==0x676C6F63 || gun==0x66697665)							// glock,  fiveseven
+		g_PlayerSecondaryAmmo[client_index]=20;
+	else if  (gun==0x656C6974)												// elite
+		g_PlayerSecondaryAmmo[client_index]=30;
+	else if  (gun==0x74656339)												// tec9
+		g_PlayerSecondaryAmmo[client_index]=32;
+}
 //////////////
 
 ////////////////
