@@ -121,7 +121,7 @@ new const LevelXP[] = {
 	39241760, 39320997, 39400346, 39479842, 39559400, 39639019, 39718757, 39798545, 39878421, 39958397
 }
 
-new const String:Class[12][] ={
+new const String:Class[13][] ={
 "Brak",
 "Lambert",
 "Geralt",
@@ -133,9 +133,10 @@ new const String:Class[12][] ={
 "Triss",
 "Keira",
 "Felippa",
-"Fringilla(Vip)"
+"Fringilla(Vip)",
+"Ga'els"
 }
-new const ClassHP[12] = {
+new const ClassHP[13] = {
 100,
 100,
 110,
@@ -147,7 +148,8 @@ new const ClassHP[12] = {
 105,
 110,
 100,
-110
+110,
+100
 }
 new playerVip[MAXPLAYERS+1];
 new playerExp[MAXPLAYERS+1] = {1, ...};
@@ -155,7 +157,7 @@ new playerLevel[MAXPLAYERS+1] = {1, ...};
 new bool:playerToSetPoints[MAXPLAYERS+1] = {false, ...};
 new playerClass[MAXPLAYERS+1] = {0, ...};
 new playerHP[MAXPLAYERS+1] = {100, ...};
-new playerClassLevel[MAXPLAYERS+1][12];
+new playerClassLevel[MAXPLAYERS+1][13];
 
 new playerStrength[MAXPLAYERS+1] = {0, ...};
 new playerIntelligence[MAXPLAYERS+1] = {0, ...};
@@ -2004,6 +2006,7 @@ void MakeChicken(victim, attacker)
 		GetClientModel(victim, playerModel[victim], 64);
 		SetEntityModel(victim, "models/chicken/chicken.mdl");
 		
+		ClientCommand(victim, "drop");
 		ClientCommand(victim, "thirdperson");
 		CreateTimer(3.0, RemoveChicken, victim );
 		playerIsChicken[victim] = true;
