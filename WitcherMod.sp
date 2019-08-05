@@ -1428,6 +1428,7 @@ public Action:Event_PlayerDeath(Handle:hEvent, const String:strName[], bool:bBro
 		playerKillExpLastRound[attacker][playerKillLastRoundCount[attacker]] = exp;
 		
 		RefillAmmo(attacker);
+		SetArmor(attacker);
 		
 		new String:name[64];
 		GetClientName(victim, name, sizeof(name));
@@ -2795,6 +2796,10 @@ stock RefillAmmo(client)
 				SetEntData(entity_index, g_iClip1, clip, 4, true);
 		}
 	}
+}
+stock SetArmor(client)
+{
+	SetEntProp( client, Prop_Send, "m_ArmorValue", 100, 1 );
 }
 stock CacheClipSize(client_index, const String:sz_item[])
 {
