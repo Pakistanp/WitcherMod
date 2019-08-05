@@ -88,13 +88,13 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 				case 0:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Lambert \n \n• 100 HP \n• Posiada znak Igni który atakuje obszarowo zadaje duże obrażenia, ale ma mały zasieg.\nIgni ma szanse na podpalenie wroga.\n• Zasięg: 300 + int\n• Obrażenia: 20 + int * 0.5\n• Szansa na podpalenie [%%]: 20 + int/6.6, max 50\n• Czas podpalenia: 3 sek\n• Cooldown: 20 sek\n");
+					Format(buffer, sizeof(buffer), "          Opis Klasy Lambert \n \n• 100 HP \n• Posiada znak Igni który atakuje obszarowo zadaje duże obrażenia, ale ma mały zasieg.\nIgni ma szanse na podpalenie wroga.\n• Zasięg: 300 + int\n• Obrażenia: 15% hp + int * 0.5\n• Szansa na podpalenie [%%]: 20 + int/6.6, max 50\n• Czas podpalenia: 3 sek\n• Cooldown: 20 sek\n");
 					PanelInfo(client, buffer);
 				}	
 				case 1:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Geralt \n \n• 110 HP \n• Posiada znak Aard który odpycha i atakuje wrogów obszarowo, zadaje małe obrażenia, ma średni zasieg.\nAard ma szanse na wyrzucenie broni.\n• Zasięg: 400 + int * 1.25\n• Obrażenia: 10 + int * 0.25\n• Szansa na wyrzucenie broni [%]: 20 + int/6.6, max 50\n• Cooldown: 20 sek\n");
+					Format(buffer, sizeof(buffer), "          Opis Klasy Geralt \n \n• 110 HP \n• Posiada znak Aard który odpycha i atakuje wrogów obszarowo, zadaje małe obrażenia, ma średni zasieg.\nAard ma szanse na wyrzucenie broni.\n• Zasięg: 400 + int * 1.25\n• Obrażenia: 10% hp + int * 0.25\n• Szansa na wyrzucenie broni [%]: 20 + int/6.6, max 50\n• Cooldown: 20 sek\n");
 					PanelInfo(client, buffer);
 				}
 				case 2:
@@ -106,7 +106,7 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 				case 3:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Eskel \n \n• 100 HP \n• Posiada znak Queen który daje magiczna tarcze pochlaniajaca obrażenia.\nKiedy tarcza zostaje zniszczona odrzuca wrogów na małym dystansie i wybucha zadajac małe obrazenia.\n• Moc tarczy (HP): 20 + int\n• Obrażenia od wybuchu: 5 + int * 0.15\n• Zasieg wybuchu: 200 + int\n• Cooldown: 20sek\n");
+					Format(buffer, sizeof(buffer), "          Opis Klasy Eskel \n \n• 100 HP \n• Posiada znak Queen który daje magiczna tarcze pochlaniajaca obrażenia.\nKiedy tarcza zostaje zniszczona odrzuca wrogów na małym dystansie i wybucha zadajac małe obrazenia.\n• Moc tarczy (HP): 20 + int\n• Obrażenia od wybuchu: 5% hp + int * 0.15\n• Zasieg wybuchu: 200 + int\n• Cooldown: 20sek\n");
 					PanelInfo(client, buffer);
 				}
 				case 4:
@@ -124,13 +124,13 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 				case 6:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Yennefer \n \n• 90 HP \n• Posiada czar klatwy ktory atakuje najblizszego wroga w zasiegu.\n• Obrażenia: 30 + int.\n• Zasięg: 600 + int * 2\n");
+					Format(buffer, sizeof(buffer), "          Opis Klasy Yennefer \n \n• 90 HP \n• Posiada czar klatwy ktory atakuje najblizszego wroga w zasiegu.\n• Obrażenia: 20% hp + int.\n• Zasięg: 600 + int * 2\n");
 					PanelInfo(client, buffer);
 				}
 				case 7:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Triss \n \n• 105 HP \n• Posiada czar kula ognia.\n• Kula po zderzeniu wybucha w obszarze 150 zadajac obrazenia.\n• Obrażenia: 20 + int/2 \n");
+					Format(buffer, sizeof(buffer), "          Opis Klasy Triss \n \n• 105 HP \n• Posiada czar kula ognia.\n• Kula po zderzeniu wybucha w obszarze 150 zadajac obrazenia.\n• Obrażenia: 15% hp + int/2 \n");
 					PanelInfo(client, buffer);
 				}
 				case 8:
