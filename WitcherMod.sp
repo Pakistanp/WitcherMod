@@ -17,6 +17,12 @@
 #define MODEL_LIGHTNING	"materials/sprites/purplelightning.vmt"
 #define MODEL_MINE "models/tripmine/tripmine.mdl"
 
+#define FFADE_IN 0x0001 // Just here so we don't pass 0 into the function
+#define FFADE_OUT 0x0002 // Fade out (not in)
+#define FFADE_MODULATE 0x0004 // Modulate (don't blend)
+#define FFADE_STAYOUT 0x0008 // ignores the duration, stays faded out until new ScreenFade message received
+#define FFADE_PURGE 0x0010 // Purges all other fades, replacing them with this one
+
 new const LevelXP[] = {
 	0,
 	48, 144, 302, 536, 811, 1229, 1688, 2271, 2917, 3700, 
@@ -121,7 +127,7 @@ new const LevelXP[] = {
 	39241760, 39320997, 39400346, 39479842, 39559400, 39639019, 39718757, 39798545, 39878421, 39958397
 }
 
-new const String:Class[13][] ={
+new const String:Class[14][] ={
 "Brak",
 "Lambert",
 "Geralt",
@@ -134,9 +140,10 @@ new const String:Class[13][] ={
 "Keira",
 "Felippa",
 "Fringilla(Vip)",
-"Ge'els"
+"Ge'els",
+"Imlerith"
 }
-new const ClassHP[13] = {
+new const ClassHP[14] = {
 100,
 100,
 110,
@@ -149,7 +156,8 @@ new const ClassHP[13] = {
 110,
 100,
 110,
-100
+100,
+120
 }
 new playerVip[MAXPLAYERS+1];
 new playerExp[MAXPLAYERS+1] = {1, ...};
@@ -157,7 +165,7 @@ new playerLevel[MAXPLAYERS+1] = {1, ...};
 new bool:playerToSetPoints[MAXPLAYERS+1] = {false, ...};
 new playerClass[MAXPLAYERS+1] = {0, ...};
 new playerHP[MAXPLAYERS+1] = {100, ...};
-new playerClassLevel[MAXPLAYERS+1][13];
+new playerClassLevel[MAXPLAYERS+1][14];
 
 new playerStrength[MAXPLAYERS+1] = {0, ...};
 new playerIntelligence[MAXPLAYERS+1] = {0, ...};
@@ -178,7 +186,10 @@ new playerMagicHPMax[MAXPLAYERS+1];
 new playerAdditionalDamageSlow[MAXPLAYERS+1];
 new playerInvisibility[MAXPLAYERS+1];
 new playerHeal[MAXPLAYERS+1];
+new playerReflectDamage[MAXPLAYERS+1];
+new playerDamageToReflect[MAXPLAYERS+1];
 
+new isReflectionDamage[MAXPLAYERS+1];
 new playerDecoyMaxCount[MAXPLAYERS+1];
 new playerIsInvisible[MAXPLAYERS+1];
 new bool:playerMove[MAXPLAYERS+1];
@@ -1175,6 +1186,13 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			damage += /*playerAdditionalDamage[attacker] + */playerBonusAdditionalDamage[attacker];
 		}
 		
+		if(playerReflectDamage[victim] > 0 && isReflectionDamage[victim])
+		{
+			PrintToChat(victim,"reflect");
+			playerDamageToReflect[victim] = RoundToFloor(damage);
+			ReflectionOfDamage(attacker, victim);
+		}
+		// true damage
 		if(playerBonusVampire[attacker] > 0)
 		{
 			damage += float(playerBonusVampire[attacker]);
@@ -1301,7 +1319,7 @@ public float MultipleKillsSeries(client)
 
 public float MultipleUniqueClass(client)
 {
-	new classCount[13];
+	new classCount[14];
 	classCount = GetPlayersClassesCount();
 	if(classCount[playerClass[client]] > 2)
 		return 0.0;
@@ -1503,6 +1521,9 @@ public ResetPlayer(client, bool:disconect)
 	playerSpeed[client] = 0.0;
 	playerIsChicken[client] = false;
 	revivingTarget[client] = -1;
+	playerDamageToReflect[client] = 0;
+
+	isReflectionDamage[client] = false;
 	
 	if(disconect)
 	{
@@ -1541,6 +1562,7 @@ public ResetPoints(client)
 	playerIsInvisible[client] = 0;
 	playerHeal[client] = 0;
 	playerHealOption[client] = 0;
+	playerReflectDamage[client] = 0;
 }
 
 public void DealMagicDamage(victim, attacker)
@@ -1874,6 +1896,14 @@ void AddEffects(victim, attacker)
 			playerCooldown[attacker] = 0.0;
 		}
 	}
+	if( playerClass[attacker] == 13)
+	{
+		AttractPlayer(victim, attacker);
+		isReflectionDamage[attacker] = true;
+		SetEntityRenderColor(attacker, 100, 87, 0, 100);
+		ScreenFade(attacker, {100,87,0,100}, 4);
+		CreateTimer(15.0, ReflectionTimer, attacker);
+	}
 }
 public float CalculateRadius(client)
 {
@@ -1895,6 +1925,10 @@ public float CalculateRadius(client)
 		case 4:
 		{
 			radius = 200.0 + playerIntelligence[client];
+		}
+		default:
+		{
+			radius = 400.0;
 		}
 		//case 5:
 	}
@@ -1951,13 +1985,18 @@ public Float:CalculateDamage(victim, attacker)
 	}
 	
 	damage *= (1.0 - playerMagicDamageReduction[victim]);
+	//No reductions damage (true damage)
+	if(playerReflectDamage[attacker] > 0 && isReflectionDamage[attacker])
+	{
+		damage = playerDamageToReflect[attacker] * playerReflectDamage[attacker] / 100.0;
+	}
 	
 	return damage;
 }
 
 public float CalculateDuration(attacker)
 {
-	return (3 + (playerIntelligence[attacker] / 50.0)) > 8.0 ? 8.0 : (2 + (playerIntelligence[attacker] / 50.0));
+	return (3 + (playerIntelligence[attacker] / 50.0)) > 8.0 ? 8.0 : (3 + (playerIntelligence[attacker] / 50.0));
 }
 
 void DropWeapon(client)
@@ -2036,17 +2075,19 @@ void AttractPlayer(victim, attacker)
 	MakeVectorFromPoints(attackerloc, victimloc, vVel);
 	
 	NormalizeVector(vVel, vVel);
-	if(playerClass[attacker] == 2)
-	{
-		ScaleVector(vVel, -200.0);		
-		vVel[2] = 150.0;
-	}
+	ScaleVector(vVel, -400.0);		
+	vVel[2] = 150.0;
 	TeleportEntity(victim, origin, NULL_VECTOR, vVel);
 }
 public Action:SetDefaultSpeedTimer(Handle:timer, any:client)
 {
 	SetPlayerSpeed(client, 1.0 + playerSpeed[client]);
 	isPlayerSlowed[client] = false;
+}
+public Action:ReflectionTimer(Handle:timer, any:client)
+{
+	isReflectionDamage[client] = false;
+	SetEntityRenderColor(client, 255, 255, 255, 255);
 }
 
 void MakeChicken(victim, attacker)
@@ -2129,7 +2170,7 @@ public Action Command_UseSkill(int client, int args)
 {	
 	if (IsClientInGame(client) && IsPlayerAlive(client))
 	{
-		if((playerClass[client] == 1 || playerClass[client] == 2 || playerClass[client] == 3 || playerBonusIgni[client] > 0 || playerBonusAard[client] > 0 || playerBonusYrden[client] > 0) && playerCooldown[client] == 0.0)
+		if((playerClass[client] == 1 || playerClass[client] == 2 || playerClass[client] == 3 || playerClass[client] == 13 || playerBonusIgni[client] > 0 || playerBonusAard[client] > 0 || playerBonusYrden[client] > 0) && playerCooldown[client] == 0.0)
 		{
 			if (playerClass[client] == 2)
 				ScreenShake(client);
@@ -2487,6 +2528,10 @@ void SetSpecifyStats(client)
 			if(playerHealOption[client] == 0)
 				playerHealOption[client] = 1; // 1 - heal yourself; 2 - heal aliance
 		}
+		case 14:
+		{
+			playerReflectDamage[client] = (10 + (playerIntelligence[client] / 10)) > 50 ? 50 : (10 + (playerIntelligence[client] / 10));
+		}
 	}
 }
 
@@ -2761,7 +2806,7 @@ stock int GetRealClientCount()
 }  
 stock int[] GetPlayersClassesCount()
 {
-	new classCount[13]; 
+	new classCount[14]; 
 	for (new i = 1; i <= MaxClients; i++) 
 	{
 		classCount[playerClass[i]]++;
@@ -2777,6 +2822,16 @@ stock ScreenShake(client, Float:duration=0.5, Float:amplitude=30.0, Float:freque
 	PbSetFloat(message, "duration", duration);
 	EndMessage();
 }  
+
+stock ScreenFade(client, color[4], duration)
+{ 	 
+    new Handle:message = StartMessageOne("Fade", client, USERMSG_RELIABLE);
+    PbSetInt(message, "duration", duration * 1000);
+    PbSetInt(message, "hold_time", 300);
+    PbSetInt(message, "flags", 0x0009);
+    PbSetColor(message, "clr", color);
+    EndMessage();
+} 
 
 stock RefillAmmo(client)
 {
@@ -3099,4 +3154,8 @@ void HealAliance(client)
 	}
 	TE_SetupBeamRingPoint(origin, 10.0, 200.0, g_beamsprite, g_halosprite, 1, 1, 0.5, 10.0, 1.0, IGNICOLOR, 0, 0);
 	TE_SendToAll();
+}
+ReflectionOfDamage(victim, attacker)
+{
+	DealMagicDamage(victim, attacker);
 }
