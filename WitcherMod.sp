@@ -1171,6 +1171,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 				damage -= float(playerBonusReduction[victim]);
 			}
 		}
+		// true damage
 		if(StrEqual(classWeapon, "weapon_knife") && playerBonusAdditionalDamageKnife[attacker] > 0)
 		{
 			damage += float(playerBonusAdditionalDamageKnife[attacker]);
@@ -1185,14 +1186,11 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 		{
 			damage += /*playerAdditionalDamage[attacker] + */playerBonusAdditionalDamage[attacker];
 		}
-		
 		if(playerReflectDamage[victim] > 0 && isReflectionDamage[victim])
 		{
-			PrintToChat(victim,"reflect");
 			playerDamageToReflect[victim] = RoundToFloor(damage);
 			ReflectionOfDamage(attacker, victim);
 		}
-		// true damage
 		if(playerBonusVampire[attacker] > 0)
 		{
 			damage += float(playerBonusVampire[attacker]);
@@ -1422,7 +1420,12 @@ public void CheckStats(client)
 {
 	playerSpeed[client] = FloatDiv(FloatMul(50.0, 1 - Pow(2.6182,(-0.09798 * playerAgility[client] / 3.0))), 100.0) + playerBonusSpeed[client];
 	playerMagicDamageReduction[client] = FloatDiv(FloatMul(70.0, 1 - Pow(2.6182,(-0.09798 * playerAgility[client] / 3.0))), 100.0) + playerBonusMagicDamageReduction[client];
-	playerDamageReduction[client] = FloatDiv(FloatMul(50.0, 1 - Pow(2.7182,(-0.09798 * playerDexterity[client] / 3.0))), 100.0) + playerBonusDamageReduction[client];
+	
+	if(playerClass[client] == 13)
+		playerDamageReduction[client] = FloatDiv(FloatMul(50.0, 1 - Pow(2.7182,(-0.09798 * playerDexterity[client] / 3.0))), 100.0) + playerBonusDamageReduction[client];
+	else
+		playerDamageReduction[client] = FloatDiv(FloatMul(50.0, 1 - Pow(2.7182,(-0.09798 * playerDexterity[client] / 3.0))), 100.0) + playerBonusDamageReduction[client];
+	
 	playerHP[client] = ClassHP[playerClass[client]] + playerStrength[client] * 2 + playerBonusHP[client];
 }
 
@@ -1896,13 +1899,13 @@ void AddEffects(victim, attacker)
 			playerCooldown[attacker] = 0.0;
 		}
 	}
-	if( playerClass[attacker] == 13)
+	if( playerClass[attacker] == 13 && !isReflectionDamage[attacker])
 	{
 		AttractPlayer(victim, attacker);
 		isReflectionDamage[attacker] = true;
 		SetEntityRenderColor(attacker, 100, 87, 0, 100);
-		ScreenFade(attacker, {100,87,0,100}, 4);
-		CreateTimer(15.0, ReflectionTimer, attacker);
+		ScreenFade(attacker, {100,87,0,100}, 5);
+		CreateTimer(5.0, ReflectionTimer, attacker);
 	}
 }
 public float CalculateRadius(client)
@@ -2528,7 +2531,7 @@ void SetSpecifyStats(client)
 			if(playerHealOption[client] == 0)
 				playerHealOption[client] = 1; // 1 - heal yourself; 2 - heal aliance
 		}
-		case 14:
+		case 13:
 		{
 			playerReflectDamage[client] = (10 + (playerIntelligence[client] / 10)) > 50 ? 50 : (10 + (playerIntelligence[client] / 10));
 		}
@@ -2823,11 +2826,11 @@ stock ScreenShake(client, Float:duration=0.5, Float:amplitude=30.0, Float:freque
 	EndMessage();
 }  
 
-stock ScreenFade(client, color[4], duration)
+stock ScreenFade(client, color[4], hold)
 { 	 
     new Handle:message = StartMessageOne("Fade", client, USERMSG_RELIABLE);
-    PbSetInt(message, "duration", duration * 1000);
-    PbSetInt(message, "hold_time", 300);
+    PbSetInt(message, "duration", 300);
+    PbSetInt(message, "hold_time", hold * 1000);
     PbSetInt(message, "flags", 0x0009);
     PbSetColor(message, "clr", color);
     EndMessage();
