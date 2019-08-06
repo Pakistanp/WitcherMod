@@ -1132,6 +1132,7 @@ public Action:OnWeaponCanUse(client, weapon)
     {
         return Plugin_Continue;    
     }
+	PrintToChat(client,"test");
     return Plugin_Handled;
 }  
 public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3])
@@ -1176,9 +1177,8 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 		{
 			damage += float(playerBonusAdditionalDamageKnife[attacker]);
 		}
-		if(isPlayerSlowed[victim] && (playerAdditionalDamageSlow[attacker] > 0 || playerBonusAdditionalDamageSlow[attacker] > 0))
+		if(isPlayerSlowed[victim] && (playerAdditionalDamageSlow[attacker] > 0 || playerBonusAdditionalDamageSlow[attacker] > 0 || playerBonusYrdenDamage[attacker] > 0))
 		{
-			PrintToChat(attacker,"dodatkowe");
 			damage += playerAdditionalDamageSlow[attacker] + playerBonusAdditionalDamageSlow[attacker] + playerBonusYrdenDamage[attacker];
 		}
 		
@@ -1422,7 +1422,7 @@ public void CheckStats(client)
 	playerMagicDamageReduction[client] = FloatDiv(FloatMul(70.0, 1 - Pow(2.6182,(-0.09798 * playerAgility[client] / 3.0))), 100.0) + playerBonusMagicDamageReduction[client];
 	
 	if(playerClass[client] == 13)
-		playerDamageReduction[client] = FloatDiv(FloatMul(50.0, 1 - Pow(2.7182,(-0.09798 * playerDexterity[client] / 3.0))), 100.0) + playerBonusDamageReduction[client];
+		playerDamageReduction[client] = FloatDiv(FloatMul(80.0, 1 - Pow(1.9182,(-0.05798 * playerDexterity[client] / 3.0))), 100.0) + playerBonusDamageReduction[client];
 	else
 		playerDamageReduction[client] = FloatDiv(FloatMul(50.0, 1 - Pow(2.7182,(-0.09798 * playerDexterity[client] / 3.0))), 100.0) + playerBonusDamageReduction[client];
 	
@@ -1774,7 +1774,7 @@ void TeleportPlayer(any:client) 												//check player jump
 	distance = CalculateDistance(client) - 45.0;
 	if(playerBonusTeleport[client] > 0 )
 		distance += 200;
-	if((currentButton & IN_ATTACK2) && playerCooldown[client] == 0 && StrContains(weapon, "weapon_knife") > -1 && distance > 1 && (playerBonusTeleport[client] > 0 || playerClass[client] == 6))
+	if((currentButton & IN_ATTACK2) && playerCooldown[client] == 0 && StrContains(weapon, "weapon_knife") > -1 && distance > 1 && (playerBonusTeleport[client] > 0 || playerClass[client] == 6) && !playerIsChicken[client])
 	{
 		decl Handle:TraceRay;
 		decl Float:StartOrigin[3], Float:Angles[3], Float:fwd[3];
@@ -1896,7 +1896,6 @@ void AddEffects(victim, attacker)
 		if(CanMakeChicken(attacker))
 		{
 			MakeChicken(victim, attacker);
-			playerCooldown[attacker] = 0.0;
 		}
 	}
 	if( playerClass[attacker] == 13 && !isReflectionDamage[attacker])
@@ -2033,7 +2032,6 @@ void SlowPlayer(victim, attacker)
 	speed = currentSpeed - slow;
 	SetPlayerSpeed(victim, speed);
 	isPlayerSlowed[victim] = true;
-	PrintToChat(attacker,"spowolnienie");
 	CreateTimer(CalculateDuration(attacker), SetDefaultSpeedTimer, victim)
 }
 void PushPlayerBack(victim, attacker)
@@ -2107,6 +2105,7 @@ void MakeChicken(victim, attacker)
 		GainPower(victim, attacker);
 		CreateTimer(10.0 + playerIntelligence[attacker] / 15.0, RemovePowerTimer, attacker);
 		playerCooldown[attacker] = 1.0;
+		PrintToChat(attacker,"cool %f: ", playerCooldown[attacker]);
 	}
 }
 
@@ -2171,7 +2170,7 @@ void GainPower(victim, attacker)
 }
 public Action Command_UseSkill(int client, int args)
 {	
-	if (IsClientInGame(client) && IsPlayerAlive(client))
+	if (IsClientInGame(client) && IsPlayerAlive(client) && !playerIsChicken[client])
 	{
 		if((playerClass[client] == 1 || playerClass[client] == 2 || playerClass[client] == 3 || playerClass[client] == 13 || playerBonusIgni[client] > 0 || playerBonusAard[client] > 0 || playerBonusYrden[client] > 0) && playerCooldown[client] == 0.0)
 		{
@@ -2510,8 +2509,7 @@ void SetSpecifyStats(client)
 		{
 			playerChanceToDropWpnSkill[client] = 20 + ((RoundToFloor(playerIntelligence[client] / 6.6)) > 30 ? 30 : (RoundToFloor(playerIntelligence[client] / 6.6)));
 		}
-		//case 3:
-		case 4:
+		case 3:
 		{
 			playerAdditionalDamageSlow[client] = 2 + (RoundToFloor(playerIntelligence[client] / 10.0));
 		}
