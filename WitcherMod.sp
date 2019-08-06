@@ -17,6 +17,8 @@
 #define MODEL_LIGHTNING	"materials/sprites/purplelightning.vmt"
 #define MODEL_MINE "models/tripmine/tripmine.mdl"
 
+#define SOUND_FREEZE "physics/glass/glass_impact_bullet4.wav"
+
 #define FFADE_IN 0x0001 // Just here so we don't pass 0 into the function
 #define FFADE_OUT 0x0002 // Fade out (not in)
 #define FFADE_MODULATE 0x0004 // Modulate (don't blend)
@@ -217,6 +219,8 @@ new decoyEntity[MAXPLAYERS + 1] = {-1, ...};
 new g_iClip1 = -1;
 new g_hActiveWeapon = -1;
 
+new g_FreezeSprite;
+
 new g_PlayerPrimaryAmmo[MAXPLAYERS+1] = {0, ...};
 new g_PlayerSecondaryAmmo[MAXPLAYERS+1] = {0, ...};
 
@@ -406,6 +410,9 @@ public void OnMapStart()
 	PrecacheSound( "weapons/hegrenade/explode4.wav" );
 	PrecacheSound( "weapons/hegrenade/explode5.wav" );
 	
+	PrecacheSound(SOUND_FREEZE, true);
+	g_FreezeSprite = PrecacheModel("sprites/blueglow2.vmt");
+	
 	//GlowSprite = PrecacheModel("materials/sprites/blueglow1.vmt");
 }
 
@@ -465,8 +472,8 @@ public OnRoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 			
 			if(playerToSetPoints[i] || CheckAvailablePoints(i))
 			{
-				if(isMenuPointsDisplayed[i])
-					KillTimer(handleMenuPoints[i]);
+				if(isMenuPointsDisplayed[i] && handleMenuPoints[i] == null)
+					//KillTimer(handleMenuPoints[i]);
 					
 				handleMenuPoints[i] = CreateTimer(0.2, SetMenuPointsTimer, i);
 				playerToSetPoints[i] = false;
@@ -870,6 +877,7 @@ public Action:SetMenuPointsTimer(Handle:timer, any:client)
 	isMenuPointsDisplayed[client] = true;
 	SetMenuPoints(client);
     KillTimer(handleMenuPoints[client]);
+	handleMenuPoints[client] = null;
 }
 
 public Action:SetPlayerAbilitiesTimer(Handle:timer, any:client)
@@ -1023,7 +1031,7 @@ public int MenuPoints_Handler(Menu menu, MenuAction action, int client, int a)
 		case MenuAction_End:
 			delete menu;
 	}
-	if(playerPoints[client] > 0 && IsPlayerAlive(client))
+	if(playerPoints[client] > 0 && IsPlayerAlive(client) && handleMenuPoints[client] == null)
 	{
 		handleMenuPoints[client] = CreateTimer(0.01, SetMenuPointsTimer, client);
 	}
@@ -2864,6 +2872,25 @@ stock SetArmor(client)
 	if(playerClass[client] == 12)
 	{
 		SetEntProp( client, Prop_Send, "m_ArmorValue", 100, 1 );
+	}
+}
+stock FreezePlayer(client)
+{
+	new Float:vec[3];
+	GetClientAbsOrigin(client, vec);
+	EmitAmbientSound(SOUND_FREEZE, vec, client);
+
+	if(!isPlayerFrozen[client])
+	{
+		SetEntityMoveType(client, MOVETYPE_WALK);
+		isPlayerFrozen[client] = true;
+	}
+	else
+	{
+		TE_SetupGlowSprite(vec, g_FreezeSprite, 0.95, 1.5, 50);
+		TE_SendToAll();
+		SetEntityMoveType(client, MOVETYPE_NONE);
+		isPlayerFrozen[client] = false;
 	}
 }
 stock CacheClipSize(client_index, const String:sz_item[])
