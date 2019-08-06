@@ -1196,6 +1196,12 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			damage += float(playerBonusVampire[attacker]);
 			AddPlayerHp(attacker, playerBonusVampire[attacker]);
 		}
+		if(playerClass[attacker] == 13)
+		{
+			if(playerDamageReduction[attacker] > 20)
+				damage *= (playerDamageReduction[attacker] - 20) / 100.0;
+		}
+		
 		int exp = 0;
 		exp = CalcExp(victim, attacker, 2, damage);
 		GiveExp(attacker,exp);
