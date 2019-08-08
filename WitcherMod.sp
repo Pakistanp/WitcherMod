@@ -1731,7 +1731,7 @@ public OnGameFrame()
 			}
 			
 			TeleportPlayer(i);
-			SetInvisible(i);
+			CheckMove(i);
 			//test(i);
 		}
 	}
@@ -1831,21 +1831,45 @@ void TeleportPlayer(any:client) 												//check player jump
 	
 }
 
+void CheckMove(client)
+{
+	if(!(GetClientButtons(client) & IN_FORWARD) &&
+	!(GetClientButtons(client) & IN_BACK) &&
+	!(GetClientButtons(client) & IN_MOVELEFT) &&
+	!(GetClientButtons(client) & IN_MOVERIGHT) &&
+	!(GetClientButtons(client) & IN_JUMP))
+	{
+		playerMove[client] = false;
+		SetInvisible(client);
+	}
+	else
+	{
+		playerMove[client] = true;
+		SetBleed(client);
+	}
+}
+
+void SetBleed(client)
+{
+	if(playerIsBleed[client] && !(GetClientButtons(client) & IN_WALK))
+	{
+		CreateTImer(5.0, UnBleedTimer, client);
+	}
+	//check Goremod
+}
+
+void MakeBleed(victim, attacker)
+{
+	playerIsBleed[victim] = true;
+	playerBleedBy[victim] = attacker;
+}
+
 void SetInvisible(client)
 {
 	new String:weapon[32];
 	GetClientWeapon(client, weapon, sizeof(weapon));
-	if(playerClass[client] == 9 || playerBonusInvisible[client] > 0)
-	{
-		PrintToChat(client,"%s",!(GetClientButtons(client) && (IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT | IN_JUMP)));
-		if(!(GetClientButtons(client) & IN_FORWARD) &&
-		!(GetClientButtons(client) & IN_BACK) &&
-		!(GetClientButtons(client) & IN_MOVELEFT) &&
-		!(GetClientButtons(client) & IN_MOVERIGHT) &&
-		!(GetClientButtons(client) & IN_JUMP) &&
-		StrContains(weapon, "weapon_knife") > -1)
+	if((playerClass[client] == 9 || playerBonusInvisible[client]) > 0 && StrContains(weapon, "weapon_knife") > -1))
 		{
-			playerMove[client] = false;
 			if (playerCooldown[client] == 2.0 && playerIsInvisible[client] == 0)
 			{
 				//playerCooldown[client] = 2.0;
@@ -1855,7 +1879,6 @@ void SetInvisible(client)
 			{
 				SetPlayerInvisibility(client, playerInvisibility[client] + playerBonusInvisible[client]);
 				playerIsInvisible[client] = 1;
-				PrintToChat(client,"invisible");
 			}
 		}
 		else
@@ -1863,13 +1886,11 @@ void SetInvisible(client)
 			playerMove[client] = true;
 			if(playerCooldown[client] < 2.0 && playerIsInvisible[client] == 1)
 			{
-				PrintToChat(client,"visible");
 				playerCooldown[client] = 2.0;
 				SetPlayerInvisibility(client, 100);
 				playerIsInvisible[client] = 0;
 			}
 		}
-	}
 }
 
 void AddEffects(victim, attacker)
