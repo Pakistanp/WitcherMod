@@ -3214,3 +3214,5 @@ ReflectionOfDamage(victim, attacker)
 {
 	DealMagicDamage(victim, attacker);
 }
+check
+https://github.com/MitchDizzle/CSGO_AdminESP/blob/master/scripting/csgo_admin_esp.sp
