@@ -3216,3 +3216,4 @@ ReflectionOfDamage(victim, attacker)
 }
 check
 https://github.com/MitchDizzle/CSGO_AdminESP/blob/master/scripting/csgo_admin_esp.sp
+https://github.com/Franc1sco/MolotovCockTails/blob/master/molotov.sp
