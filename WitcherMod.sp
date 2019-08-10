@@ -197,6 +197,8 @@ new playerIsInvisible[MAXPLAYERS+1];
 new bool:playerMove[MAXPLAYERS+1];
 new bool:playerIsChicken[MAXPLAYERS+1] = {false, ...};
 new String:playerModel[MAXPLAYERS+1][64];
+new bool:playerIsBleed[MAXPLAYERS+1] = {false, ...};
+new playerBleedBy[MAXPLAYERS+1];
 
 new playerMinutes[MAXPLAYERS+1] = {0, ...};
 new playerKillsSeries[MAXPLAYERS+1] = {0, ...};
@@ -414,6 +416,22 @@ public void OnMapStart()
 	g_FreezeSprite = PrecacheModel("sprites/blueglow2.vmt");
 	
 	//GlowSprite = PrecacheModel("materials/sprites/blueglow1.vmt");
+	
+	ForcePrecache("blood_impact_heavy");
+	ForcePrecache("blood_impact_goop_heavy");
+	ForcePrecache("blood_impact_red_01_chunk");
+	ForcePrecache("blood_impact_headshot_01c");
+	ForcePrecache("blood_impact_headshot_01b");
+	ForcePrecache("blood_impact_headshot_01d");
+	ForcePrecache("blood_impact_basic");
+	ForcePrecache("blood_impact_medium");
+	ForcePrecache("blood_impact_red_01_goop_a");
+	ForcePrecache("blood_impact_red_01_goop_b");
+	ForcePrecache("blood_impact_goop_medium");
+	ForcePrecache("blood_impact_red_01_goop_c");
+	ForcePrecache("blood_impact_red_01_drops");
+	ForcePrecache("blood_impact_drops1");
+	ForcePrecache("blood_impact_red_01_backspray");
 }
 
 public Action:Event_PlayerHurt(Handle:event, const String:name[], bool:dontBroadcast)
@@ -1851,24 +1869,46 @@ void CheckMove(client)
 
 void SetBleed(client)
 {
-	if(playerIsBleed[client] && !(GetClientButtons(client) & IN_WALK))
+	if(!playerIsBleed[client] && !(GetClientButtons(client) & IN_WALK))
 	{
-		CreateTImer(5.0, UnBleedTimer, client);
+		playerIsBleed[client] = true;
+		CreateTimer(5.0, UnBleedTimer, client);
+	}
+	else if(playerIsBleed[client])
+	{
+		for (new i = 0; i < 3; i++)
+		{
+			ChanceParticle(client, "blood_impact_red_01_backspray");
+			ChanceParticle(client, "blood_impact_drops1");
+			ChanceParticle(client, "blood_impact_red_01_drops");
+		}
+
+		ChanceParticle(client, "blood_impact_red_01_goop_c");
+		ChanceParticle(client, "blood_impact_goop_medium");
+		ChanceParticle(client, "blood_impact_red_01_goop_b");
+		ChanceParticle(client, "blood_impact_red_01_goop_a");
+		ChanceParticle(client, "blood_impact_medium");
+		ChanceParticle(client, "blood_impact_basic");
 	}
 	//check Goremod
 }
 
 void MakeBleed(victim, attacker)
 {
-	playerIsBleed[victim] = true;
 	playerBleedBy[victim] = attacker;
+}
+
+public Action:UnBleedTimer(Handle:timer, any:client)
+{
+	playerIsBleed[client] = false;
+	playerBleedBy[client] = -1;
 }
 
 void SetInvisible(client)
 {
 	new String:weapon[32];
 	GetClientWeapon(client, weapon, sizeof(weapon));
-	if((playerClass[client] == 9 || playerBonusInvisible[client]) > 0 && StrContains(weapon, "weapon_knife") > -1))
+	if((playerClass[client] == 9 || playerBonusInvisible[client] > 0) && StrContains(weapon, "weapon_knife") > -1)
 		{
 			if (playerCooldown[client] == 2.0 && playerIsInvisible[client] == 0)
 			{
@@ -3213,6 +3253,77 @@ void HealAliance(client)
 ReflectionOfDamage(victim, attacker)
 {
 	DealMagicDamage(victim, attacker);
+}
+
+ForcePrecache(String:particleName[])
+{
+	new particle;
+
+	particle = CreateEntityByName("info_particle_system");
+	
+	if(IsValidEdict(particle))
+	{
+		DispatchKeyValue(particle, "effect_name", particleName);
+		
+		DispatchSpawn(particle);
+		ActivateEntity(particle);
+		AcceptEntityInput(particle, "start");
+		
+		CreateTimer(1.0, DeleteParticle, particle, TIMER_FLAG_NO_MAPCHANGE);
+	}
+}
+ChanceParticle(client, String:particleName[])
+{
+	CreateParticle(client, particleName);
+}
+
+CreateParticle(client, String:particleName[])
+{
+	new particle;
+	particle = CreateEntityByName("info_particle_system");
+	
+	if (IsValidEdict(particle) && IsValidEdict(client))
+	{	
+		new Float:origin[3];
+		new String:targetName[64];
+
+		GetEntPropVector(client, Prop_Send, "m_vecOrigin", origin);
+
+		origin[2] += GetRandomFloat(25.0, 75.0);
+
+		TeleportEntity(particle, origin, NULL_VECTOR, NULL_VECTOR);
+
+		Format(targetName, sizeof(targetName), "Client%d", client);
+		DispatchKeyValue(client, "targetname", targetName);
+		GetEntPropString(client, Prop_Data, "m_iName", targetName, sizeof(targetName));
+
+		DispatchKeyValue(particle, "targetname", "CSGOParticle");
+		DispatchKeyValue(particle, "parentname", targetName);
+		DispatchKeyValue(particle, "effect_name", particleName);
+
+		DispatchSpawn(particle);
+		
+		SetVariantString(targetName);
+		AcceptEntityInput(particle, "SetParent", particle, particle, 0);
+
+		ActivateEntity(particle);
+		AcceptEntityInput(particle, "start");
+
+		CreateTimer(1.0, DeleteParticle, particle);
+	}
+}
+
+public Action:DeleteParticle(Handle:Timer, any:particle)
+{
+	if (IsValidEdict(particle))
+	{	
+		new String:className[64];
+
+		GetEdictClassname(particle, className, sizeof(className));
+
+		if(StrEqual(className, "info_particle_system", false))
+			RemoveEdict(particle);
+	}
 }
 check
 https://github.com/MitchDizzle/CSGO_AdminESP/blob/master/scripting/csgo_admin_esp.sp
