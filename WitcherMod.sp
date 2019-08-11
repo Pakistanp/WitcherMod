@@ -129,7 +129,7 @@ new const LevelXP[] = {
 	39241760, 39320997, 39400346, 39479842, 39559400, 39639019, 39718757, 39798545, 39878421, 39958397
 }
 
-new const String:Class[14][] ={
+new const String:Class[15][] ={
 "Brak",
 "Lambert",
 "Geralt",
@@ -143,9 +143,10 @@ new const String:Class[14][] ={
 "Felippa",
 "Fringilla(Vip)",
 "Ge'els",
-"Imlerith"
+"Imlerith",
+"Caranthir"
 }
-new const ClassHP[14] = {
+new const ClassHP[15] = {
 100,
 100,
 110,
@@ -159,7 +160,8 @@ new const ClassHP[14] = {
 100,
 110,
 100,
-120
+120,
+100
 }
 new playerVip[MAXPLAYERS+1];
 new playerExp[MAXPLAYERS+1] = {1, ...};
@@ -167,7 +169,7 @@ new playerLevel[MAXPLAYERS+1] = {1, ...};
 new bool:playerToSetPoints[MAXPLAYERS+1] = {false, ...};
 new playerClass[MAXPLAYERS+1] = {0, ...};
 new playerHP[MAXPLAYERS+1] = {100, ...};
-new playerClassLevel[MAXPLAYERS+1][14];
+new playerClassLevel[MAXPLAYERS+1][15];
 
 new playerStrength[MAXPLAYERS+1] = {0, ...};
 new playerIntelligence[MAXPLAYERS+1] = {0, ...};
@@ -193,6 +195,7 @@ new playerDamageToReflect[MAXPLAYERS+1];
 new playerChanceToBleed[MAXPLAYERS+1];
 new playerBleedDamage[MAXPLAYERS+1];
 new playerChanceToRefillAmmo[MAXPLAYERS+1];
+new playerChanceToFreeze[MAXPLAYERS+1];
 
 new isReflectionDamage[MAXPLAYERS+1];
 new playerDecoyMaxCount[MAXPLAYERS+1];
@@ -202,6 +205,7 @@ new bool:playerIsChicken[MAXPLAYERS+1] = {false, ...};
 new String:playerModel[MAXPLAYERS+1][64];
 new bool:playerIsBleed[MAXPLAYERS+1] = {false, ...};
 new playerBleedBy[MAXPLAYERS+1]= {-1, ...};
+new isPlayerFrozen[MAXPLAYERS+1] = {false, ...};
 
 new playerMinutes[MAXPLAYERS+1] = {0, ...};
 new playerKillsSeries[MAXPLAYERS+1] = {0, ...};
@@ -1079,11 +1083,11 @@ public Action:Event_PlayerSpawn(Handle:hEvent, const String:strName[], bool:bBro
 	if(playerClass[client] > 0)
 	{
 		handleSetAbilityTimer[client] = CreateTimer(0.1, SetPlayerAbilitiesTimer, client);
-		if(playerToSetPoints[client] || CheckAvailablePoints(client))
+		if((playerToSetPoints[client] || CheckAvailablePoints(client)) && handleMenuPoints[client] == null)
 		{
-			if(isMenuPointsDisplayed[client])
-				KillTimer(handleMenuPoints[client]);
-				
+		//GetClientMenu
+			// if(isMenuPointsDisplayed[client])
+				// KillTimer(handleMenuPoints[client]);
 			handleMenuPoints[client] = CreateTimer(0.2, SetMenuPointsTimer, client);
 			playerToSetPoints[client] = false;
 		}
@@ -1190,6 +1194,13 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			{
 				PrintToChat(attacker, "Krytyk!");
 				damage *= (1.0 + (playerCritDamage[attacker] + playerBonusCritDamage[attacker] + playerBonusAksjiDamage[attacker]) / 100.0);
+			}
+		}
+		if(playerChanceToFreeze[attacker] > 0)
+		{
+			if(GetRandomInt(1, RoundToFloor(100.0 / (playerChanceToFreeze[attacker] /*+ playerBonusChanceToCrit[attacker]*/))) == 1)
+			{
+				FreezePlayer(victim);
 			}
 		}
 		if(!(damagetype & DMG_BURN))
@@ -1352,7 +1363,7 @@ public float MultipleKillsSeries(client)
 
 public float MultipleUniqueClass(client)
 {
-	new classCount[14];
+	new classCount[15];
 	classCount = GetPlayersClassesCount();
 	if(classCount[playerClass[client]] > 2)
 		return 0.0;
@@ -1601,6 +1612,10 @@ public ResetPoints(client)
 	playerHeal[client] = 0;
 	playerHealOption[client] = 0;
 	playerReflectDamage[client] = 0;
+	playerChanceToBleed[client] = 0;
+	playerChanceToFreeze[client] = 0;
+	playerChanceToRefillAmmo[client] = 0;
+	playerBleedDamage[client] = 0;
 }
 
 public void DealMagicDamage(victim, attacker)
@@ -2608,13 +2623,17 @@ void SetSpecifyStats(client)
 			if(playerHealOption[client] == 0)
 				playerHealOption[client] = 1; // 1 - heal yourself; 2 - heal aliance
 		}
-		case 12: // Ge'els
+		case 12: //Ge'els
 		{
 			playerChanceToRefillAmmo[client] = 25 + (playerIntelligence[client] > 100 ? 100 : playerIntelligence[client]);
 		}
 		case 13: //Imlerith
 		{
 			playerReflectDamage[client] = (10 + (playerIntelligence[client] / 10)) > 50 ? 50 : (10 + (playerIntelligence[client] / 10));
+		}
+		case 14: //Caranthir
+		{
+			playerChanceToFreeze[client] = 7;
 		}
 	}
 }
@@ -2890,7 +2909,7 @@ stock int GetRealClientCount()
 }  
 stock int[] GetPlayersClassesCount()
 {
-	new classCount[14]; 
+	new classCount[15]; 
 	for (new i = 1; i <= MaxClients; i++) 
 	{
 		classCount[playerClass[i]]++;
