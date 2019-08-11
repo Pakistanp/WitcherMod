@@ -118,7 +118,7 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 				case 5:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Ciri(klasa jeszcze nie skonczona) \n \n• 125 HP \n• Posiada teleport aby uzyc wybierz noz i PPM.\n• Zasięg teleportu: 600 + int * 2\n");
+					Format(buffer, sizeof(buffer), "          Opis Klasy Ciri(klasa jeszcze nie skonczona) \n \n• 125 HP \n• Posiada teleport aby uzyc wybierz noz i PPM.\n• Zasięg teleportu: 600 + int * 2\n• Klasa VIP\n");
 					PanelInfo(client, buffer);
 				}
 				case 6:
@@ -148,7 +148,7 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 				case 10:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Fringilla \n \n• 110 HP \n• Zamienia najblizszego gracza w kurczaka na 3sek\n• Przejmuje moce postaci na 10 + int/15 sek.\n• Pozyskane moce sa silniejsze i zależą od int.\n");
+					Format(buffer, sizeof(buffer), "          Opis Klasy Fringilla \n \n• 110 HP \n• Zamienia najblizszego gracza w kurczaka na 3sek\n• Przejmuje moce postaci na 10 + int/15 sek.\n• Pozyskane moce sa silniejsze i zależą od int.\n• Klasa VIP\n");
 					PanelInfo(client, buffer);
 				}
 			}
