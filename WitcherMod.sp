@@ -307,6 +307,8 @@ new playerBonusAdditionalDamageKnife[MAXPLAYERS+1];
 new playerBonusVampire[MAXPLAYERS+1];
 new playerBonusGravity[MAXPLAYERS+1];
 new playerBonusSlow[MAXPLAYERS+1];
+new playerBonusChanceToBleed[MAXPLAYERS+1];
+new playerBonusBleedDamage[MAXPLAYERS+1];
 
 new playerBonusIgni[MAXPLAYERS+1];
 new playerBonusAard[MAXPLAYERS+1];
@@ -1203,6 +1205,13 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 				FreezePlayer(victim);
 			}
 		}
+		if(playerChanceToBleed[attacker] > 0 || playerBonusChanceToBleed[attacker] > 0)
+		{
+			if(GetRandomInt(1, RoundToFloor(100.0 / (playerChanceToBleed[attacker] + playerBonusChanceToBleed[attacker]))) == 1)
+			{
+				MakeBleed(victim, attacker);
+			}
+		}
 		if(!(damagetype & DMG_BURN))
 		{
 			damage *= (1.0 - playerDamageReduction[victim]);
@@ -1907,6 +1916,8 @@ void SetBleed(client)
 		ChanceParticle(client, "blood_impact_red_01_goop_a");
 		ChanceParticle(client, "blood_impact_medium");
 		ChanceParticle(client, "blood_impact_basic");
+		
+		DealMagicDamage(client, playerBleedBy[client]);
 	}
 }
 
@@ -2084,6 +2095,10 @@ public Float:CalculateDamage(victim, attacker)
 	if(playerReflectDamage[attacker] > 0 && isReflectionDamage[attacker])
 	{
 		damage = playerDamageToReflect[attacker] * playerReflectDamage[attacker] / 100.0;
+	}
+	if(playerBleedDamage[attacker] > 0 && playerBonusBleedDamage[attacker] > 0)
+	{
+		damage = float(playerBleedDamage[attacker] + playerBonusBleedDamage[attacker]);
 	}
 	
 	return damage;
@@ -2647,7 +2662,7 @@ GiveMagicShield(client)
 public void GiveItem(client)
 {
 	new item;
-	item = GetRandomInt(1,10);
+	item = GetRandomInt(1,11);
 	itemEndurance[client] = GetRandomInt(200 + playerDexterity[client], 400 + playerDexterity[client]);
 	
 	switch(item)
@@ -2737,6 +2752,15 @@ public void GiveItem(client)
 			
 			PrintToChat(client, " Znalazles przedmiot: %s :: zmniejszona grawitacja o %i%%", playerItemName[client], playerBonusGravity[client]);
 		}
+		case 11:
+		{
+			playerItemName[client] = "Rachmistrz";
+			playerItem[client] = item;
+			playerBonusChanceToBleed[client] = GetRandomInt(5, 15);
+			playerBonusBleedDamage[client] = 2;
+			
+			PrintToChat(client, " Znalazles przedmiot: %s :: Masz %i%% szans na wywołanie kwrawienia przystrzale.", playerItemName[client], playerBonusChanceToBleed[client]);
+		}
 	}
 	CheckStats(client);
 	SetSpecifyStats(client);
@@ -2766,6 +2790,8 @@ public DropItem(client)
 	playerBonusAdditionalDamageKnife[client] = 0;
 	playerBonusVampire[client] = 0;
 	playerBonusGravity[client] = 0;
+	playerBonusChanceToBleed[client] = 0;
+	playerBonusBleedDamage[client] = 0;
 	
 	CheckStats(client);
 	SetSpecifyStats(client);
