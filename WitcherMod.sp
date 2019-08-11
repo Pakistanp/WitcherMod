@@ -190,6 +190,9 @@ new playerInvisibility[MAXPLAYERS+1];
 new playerHeal[MAXPLAYERS+1];
 new playerReflectDamage[MAXPLAYERS+1];
 new playerDamageToReflect[MAXPLAYERS+1];
+new playerChanceToBleed[MAXPLAYERS+1];
+new playerBleedDamage[MAXPLAYERS+1];
+new playerChanceToRefillAmmo[MAXPLAYERS+1];
 
 new isReflectionDamage[MAXPLAYERS+1];
 new playerDecoyMaxCount[MAXPLAYERS+1];
@@ -198,7 +201,7 @@ new bool:playerMove[MAXPLAYERS+1];
 new bool:playerIsChicken[MAXPLAYERS+1] = {false, ...};
 new String:playerModel[MAXPLAYERS+1][64];
 new bool:playerIsBleed[MAXPLAYERS+1] = {false, ...};
-new playerBleedBy[MAXPLAYERS+1];
+new playerBleedBy[MAXPLAYERS+1]= {-1, ...};
 
 new playerMinutes[MAXPLAYERS+1] = {0, ...};
 new playerKillsSeries[MAXPLAYERS+1] = {0, ...};
@@ -1869,7 +1872,7 @@ void CheckMove(client)
 
 void SetBleed(client)
 {
-	if(!playerIsBleed[client] && !(GetClientButtons(client) & IN_WALK))
+	if(!playerIsBleed[client] && !(GetClientButtons(client) & IN_WALK) && playerBleedBy[client] > 0)
 	{
 		playerIsBleed[client] = true;
 		CreateTimer(5.0, UnBleedTimer, client);
@@ -1890,7 +1893,6 @@ void SetBleed(client)
 		ChanceParticle(client, "blood_impact_medium");
 		ChanceParticle(client, "blood_impact_basic");
 	}
-	//check Goremod
 }
 
 void MakeBleed(victim, attacker)
@@ -2576,35 +2578,39 @@ void SetSpecifyStats(client)
 {
 	switch(playerClass[client])
 	{
-		case 1:
+		case 1: //Lambert
 		{
 			playerChanceToBurnSkill[client] = 20 + ((RoundToFloor(playerIntelligence[client] / 6.6)) > 30 ? 30 : (RoundToFloor(playerIntelligence[client] / 6.6)));
 		}
-		case 2:
+		case 2: //Geralt
 		{
 			playerChanceToDropWpnSkill[client] = 20 + ((RoundToFloor(playerIntelligence[client] / 6.6)) > 30 ? 30 : (RoundToFloor(playerIntelligence[client] / 6.6)));
 		}
-		case 3:
+		case 3: //Vesemir
 		{
 			playerAdditionalDamageSlow[client] = 2 + (RoundToFloor(playerIntelligence[client] / 10.0));
 		}
-		case 5:
+		case 5: //Leto
 		{
 			playerChanceToCrit[client] = 10 + ((RoundToFloor(playerIntelligence[client] / 25.0)) > 10 ? 10 : (RoundToFloor(playerIntelligence[client] / 25.0)));
 			playerCritDamage[client] = 20.0 + ((RoundToFloor(playerIntelligence[client] / 2.0)) > 80 ? 80.0 : float((RoundToFloor(playerIntelligence[client] / 2.0))));
 		}
-		case 9:
+		case 9: //Keira
 		{
 			playerInvisibility[client] = 50 - ((RoundToFloor(playerIntelligence[client] / 5.0)) > 40 ? 40 : (RoundToFloor(playerIntelligence[client] / 5.0)));
 			playerDecoyMaxCount[client] = 1 + (RoundToFloor(playerIntelligence[client] / 50.0));
 		}
-		case 10:
+		case 10: //Felippa
 		{
 			playerHeal[client] = 5 + (RoundToFloor(playerIntelligence[client] / 10.0));
 			if(playerHealOption[client] == 0)
 				playerHealOption[client] = 1; // 1 - heal yourself; 2 - heal aliance
 		}
-		case 13:
+		case 12: // Ge'els
+		{
+			playerChanceToRefillAmmo[client] = 25 + (playerIntelligence[client] > 100 ? 100 : playerIntelligence[client]);
+		}
+		case 13: //Imlerith
 		{
 			playerReflectDamage[client] = (10 + (playerIntelligence[client] / 10)) > 50 ? 50 : (10 + (playerIntelligence[client] / 10));
 		}
@@ -2913,18 +2919,21 @@ stock RefillAmmo(client)
 {
 	if(playerClass[client] == 12)
 	{
-	PrintToChat(client,"ammo");
-		new clip;
-		new entity_index = GetEntDataEnt2(client, g_hActiveWeapon);
-		if (IsValidEdict(client))
+		if(GetRandomInt(1, RoundToFloor(100.0 / (playerChanceToRefillAmmo[client] /*+ playerBonusChanceToCrit[attacker]*/))) == 1)
 		{
-			if (entity_index == GetPlayerWeaponSlot(client, _:Slot_Primary))
-				clip = g_PlayerPrimaryAmmo[client];
-			else if (entity_index == GetPlayerWeaponSlot(client, _:Slot_Secondary))
-				clip = g_PlayerSecondaryAmmo[client];
+		PrintToChat(client,"ammo");
+			new clip;
+			new entity_index = GetEntDataEnt2(client, g_hActiveWeapon);
+			if (IsValidEdict(client))
+			{
+				if (entity_index == GetPlayerWeaponSlot(client, _:Slot_Primary))
+					clip = g_PlayerPrimaryAmmo[client];
+				else if (entity_index == GetPlayerWeaponSlot(client, _:Slot_Secondary))
+					clip = g_PlayerSecondaryAmmo[client];
 
-			if (clip)
-				SetEntData(entity_index, g_iClip1, clip, 4, true);
+				if (clip)
+					SetEntData(entity_index, g_iClip1, clip, 4, true);
+			}
 		}
 	}
 }
@@ -3325,6 +3334,6 @@ public Action:DeleteParticle(Handle:Timer, any:particle)
 			RemoveEdict(particle);
 	}
 }
-check
-https://github.com/MitchDizzle/CSGO_AdminESP/blob/master/scripting/csgo_admin_esp.sp
-https://github.com/Franc1sco/MolotovCockTails/blob/master/molotov.sp
+// check
+// https://github.com/MitchDizzle/CSGO_AdminESP/blob/master/scripting/csgo_admin_esp.sp
+// https://github.com/Franc1sco/MolotovCockTails/blob/master/molotov.sp
