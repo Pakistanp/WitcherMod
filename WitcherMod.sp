@@ -129,7 +129,7 @@ new const LevelXP[] = {
 	39241760, 39320997, 39400346, 39479842, 39559400, 39639019, 39718757, 39798545, 39878421, 39958397
 }
 
-new const String:Class[15][] ={
+new const String:Class[17][] ={
 "Brak",
 "Lambert",
 "Geralt",
@@ -144,9 +144,11 @@ new const String:Class[15][] ={
 "Fringilla(Vip)",
 "Ge'els",
 "Imlerith",
-"Caranthir"
+"Caranthir",
+"Nithral",
+"Eredin(Vip)"
 }
-new const ClassHP[15] = {
+new const ClassHP[17] = {
 100,
 100,
 110,
@@ -161,7 +163,9 @@ new const ClassHP[15] = {
 110,
 100,
 120,
-100
+100,
+100,
+110
 }
 new playerVip[MAXPLAYERS+1];
 new playerExp[MAXPLAYERS+1] = {1, ...};
@@ -169,7 +173,7 @@ new playerLevel[MAXPLAYERS+1] = {1, ...};
 new bool:playerToSetPoints[MAXPLAYERS+1] = {false, ...};
 new playerClass[MAXPLAYERS+1] = {0, ...};
 new playerHP[MAXPLAYERS+1] = {100, ...};
-new playerClassLevel[MAXPLAYERS+1][15];
+new playerClassLevel[MAXPLAYERS+1][17];
 
 new playerStrength[MAXPLAYERS+1] = {0, ...};
 new playerIntelligence[MAXPLAYERS+1] = {0, ...};
@@ -196,6 +200,8 @@ new playerChanceToBleed[MAXPLAYERS+1];
 new playerBleedDamage[MAXPLAYERS+1];
 new playerChanceToRefillAmmo[MAXPLAYERS+1];
 new playerChanceToFreeze[MAXPLAYERS+1];
+new playerVampire[MAXPLAYERS+1];
+new playerChanceToRespawn[MAXPLAYERS+1];
 
 new isReflectionDamage[MAXPLAYERS+1];
 new playerDecoyMaxCount[MAXPLAYERS+1];
@@ -967,7 +973,7 @@ public SetMenuPoints(client)
 	Format(msg, sizeof(msg), "Zwinnosc + 25");
 	menu.AddItem(NULL_STRING, msg);
 	menu.ExitButton = false;
-	menu.ExitBackButton = false;
+	//menu.ExitBackButton = false;
 	menu.Display(client, 60);
 }
 public int MenuPoints_Handler(Menu menu, MenuAction action, int client, int a)
@@ -1058,7 +1064,7 @@ public int MenuPoints_Handler(Menu menu, MenuAction action, int client, int a)
 		case MenuAction_End:
 			delete menu;
 	}
-	if(playerPoints[client] > 0 && IsPlayerAlive(client) && handleMenuPoints[client] == null)
+	if(playerPoints[client] > 0 && IsPlayerAlive(client) && handleMenuPoints[client] == null && GetClientMenu(client, INVALID_HANDLE) == MenuSource_None)
 	{
 		handleMenuPoints[client] = CreateTimer(0.01, SetMenuPointsTimer, client);
 	}
@@ -1240,10 +1246,10 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			playerDamageToReflect[victim] = RoundToFloor(damage);
 			ReflectionOfDamage(attacker, victim);
 		}
-		if(playerBonusVampire[attacker] > 0)
+		if(playerBonusVampire[attacker] > 0 || playerVampire[attacker] > 0)
 		{
-			damage += float(playerBonusVampire[attacker]);
-			AddPlayerHp(attacker, playerBonusVampire[attacker]);
+			damage += float(playerBonusVampire[attacker] + playerVampire[attacker]);
+			AddPlayerHp(attacker, playerBonusVampire[attacker] + playerVampire[attacker]);
 		}
 		if(playerClass[attacker] == 13)
 		{
@@ -1372,7 +1378,7 @@ public float MultipleKillsSeries(client)
 
 public float MultipleUniqueClass(client)
 {
-	new classCount[15];
+	new classCount[17];
 	classCount = GetPlayersClassesCount();
 	if(classCount[playerClass[client]] > 2)
 		return 0.0;
@@ -1625,6 +1631,8 @@ public ResetPoints(client)
 	playerChanceToFreeze[client] = 0;
 	playerChanceToRefillAmmo[client] = 0;
 	playerBleedDamage[client] = 0;
+	playerVampire[client] = 0;
+	playerChanceToRespawn[client] = 0;
 }
 
 public void DealMagicDamage(victim, attacker)
@@ -1741,9 +1749,9 @@ bool:RespawnPlayer(client)
 {
 	new bool:respawn;
 	respawn = false;
-	if(playerBonusChanceToRespawn[client] > 0)
+	if(playerBonusChanceToRespawn[client] > 0 || playerChanceToRespawn[client] > 0)
 	{
-		if(GetRandomInt(1, RoundToFloor(100.0 / (playerBonusChanceToRespawn[client]))) == 1)
+		if(GetRandomInt(1, RoundToFloor(100.0 / (playerBonusChanceToRespawn[client] + playerChanceToRespawn[client]))) == 1)
 		{
 			CreateTimer(0.5, RespawnPlayerTimer, client)
 			respawn = true;
@@ -2650,6 +2658,14 @@ void SetSpecifyStats(client)
 		{
 			playerChanceToFreeze[client] = 7;
 		}
+		case 15: //Nithral
+		{
+			
+		}
+		case 16: //Eredin
+		{
+			playerVampire[client] = 5 + ((RoundToFloor(playerIntelligence[client] / 10.0)) > 20 ? 20 : (RoundToFloor(playerIntelligence[client] / 10.0)));
+		}
 	}
 }
 
@@ -2882,6 +2898,10 @@ public void ItemInfo(client)
 	{
 		Format(buffer, sizeof(buffer), "%s• Zmniejsza grawitacje o %i%% \n", buffer, playerBonusGravity[client]);
 	}
+	if(playerBonusChanceToBleed[client] > 0)
+	{
+		Format(buffer, sizeof(buffer), "%s• Szansa na krwawienie %i%% \n", buffer, playerBonusChanceToBleed[client]);
+	}
 	
 	Format(buffer, sizeof(buffer), "%s \n          Wytrzymałość Przedmiotu %i", buffer, itemEndurance[client]);
 	PanelInfo(client, buffer);
@@ -2935,7 +2955,7 @@ stock int GetRealClientCount()
 }  
 stock int[] GetPlayersClassesCount()
 {
-	new classCount[15]; 
+	new classCount[17]; 
 	for (new i = 1; i <= MaxClients; i++) 
 	{
 		classCount[playerClass[i]]++;
@@ -2966,7 +2986,7 @@ stock RefillAmmo(client)
 {
 	if(playerClass[client] == 12)
 	{
-		if(GetRandomInt(1, RoundToFloor(100.0 / (playerChanceToRefillAmmo[client] /*+ playerBonusChanceToCrit[attacker]*/))) == 1)
+		if(GetRandomInt(1, RoundToFloor(100.0 / (playerChanceToRefillAmmo[client] /*+ playerBonusChanceToRefillAmmo[attacker]*/))) == 1)
 		{
 		PrintToChat(client,"ammo");
 			new clip;
@@ -2996,7 +3016,7 @@ stock FreezePlayer(client)
 	new Float:vec[3];
 	GetClientAbsOrigin(client, vec);
 	EmitAmbientSound(SOUND_FREEZE, vec, client);
-
+	PrintToChatAll("freeze");
 	if(!isPlayerFrozen[client])
 	{
 		SetEntityMoveType(client, MOVETYPE_WALK);
