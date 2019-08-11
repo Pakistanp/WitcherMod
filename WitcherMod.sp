@@ -1979,6 +1979,7 @@ void AddEffects(victim, attacker)
 	{
 		AttractPlayer(victim, attacker);
 		isReflectionDamage[attacker] = true;
+		SetEntityRenderMode(attacker, RENDER_TRANSCOLOR);
 		SetEntityRenderColor(attacker, 100, 87, 0, 100);
 		ScreenFade(attacker, {100,87,0,100}, 5);
 		CreateTimer(5.0, ReflectionTimer, attacker);
@@ -2165,6 +2166,7 @@ public Action:SetDefaultSpeedTimer(Handle:timer, any:client)
 public Action:ReflectionTimer(Handle:timer, any:client)
 {
 	isReflectionDamage[client] = false;
+	SetEntityRenderMode(client, RENDER_TRANSCOLOR);
 	SetEntityRenderColor(client, 255, 255, 255, 255);
 }
 
