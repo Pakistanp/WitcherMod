@@ -1943,6 +1943,7 @@ void SetBleed(client)
 	if(!playerIsBleed[client] && !(GetClientButtons(client) & IN_WALK) && playerBleedBy[client] > 0)
 	{
 		playerIsBleed[client] = true;
+		ScreenFade(client, {255,0,0,100}, 5);
 		CreateTimer(0.5, CreateBleedTimer, client, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 		CreateTimer(5.0, UnBleedTimer, client);
 	}
