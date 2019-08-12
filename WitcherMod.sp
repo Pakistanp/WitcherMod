@@ -3,6 +3,7 @@
 #include <sdkhooks> 
 #include <cstrike>
 #include <morecolors>
+#include <CustomPlayerSkins>
 
 #pragma tabsize 0
 
@@ -257,6 +258,15 @@ YRDENCOLOR,
 QUEENCOLOR
 }
 new avgLevel;
+
+bool isUsingESP[MAXPLAYERS+1];
+bool canSeeESP[MAXPLAYERS+1];
+new playersInESP;
+ConVar sv_force_transmit_players;
+int playerModels[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE,...};
+int playerModelsIndex[MAXPLAYERS+1] = {-1,...};
+int playerTeam[MAXPLAYERS+1] = {0,...};
+
 //new fLastButtons[MAXPLAYERS+1];
 new fLastFlags[MAXPLAYERS+1];
 new String:DamageEventName[16];
@@ -357,6 +367,8 @@ public void OnPluginStart()
 		PrintToServer("[SQL]Connection Successful");
 		SQL_Start();
 	}
+	
+	sv_force_transmit_players = FindConVar("sv_force_transmit_players");
 
 	g_hActiveWeapon = FindSendPropInfo("CCSPlayer", "m_hActiveWeapon");
 	//g_iPrimaryAmmoType = FindSendPropInfo("CBaseCombatWeapon", "m_iPrimaryAmmoType");
@@ -2334,6 +2346,12 @@ public Action Command_UseSkill(int client, int args)
 			}
 			
 		}
+		if(playerClass[client] == 16)
+		{
+			checkGlows();
+			playerCooldown[client] = 10.0 - playerBonusReduceCooldown[client];	
+			CreateTimer(0.1, CooldownTimer, client, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+		}
 		SetHud(client);
 	}
 	return Plugin_Handled;
@@ -2665,6 +2683,7 @@ void SetSpecifyStats(client)
 		case 16: //Eredin
 		{
 			playerVampire[client] = 5 + ((RoundToFloor(playerIntelligence[client] / 10.0)) > 20 ? 20 : (RoundToFloor(playerIntelligence[client] / 10.0)));
+			isUsingESP[client] = true;
 		}
 	}
 }
@@ -3401,6 +3420,112 @@ public Action:DeleteParticle(Handle:Timer, any:particle)
 			RemoveEdict(particle);
 	}
 }
+public void checkGlows() {
+//if(playerIsBleed[client])
+    //Check to see if some one has a glow enabled.
+    playersInESP = 0;
+    for(int client = 1; client <= MaxClients; client++) {
+        if(!IsClientInGame(client) || !isUsingESP[client]) {
+            isUsingESP[client] = false;
+            canSeeESP[client] = false;
+            continue;
+        }
+        canSeeESP[client] = IsPlayerAlive(client);
+        if(canSeeESP[client]) {
+            playersInESP++;
+        }
+    }
+    //Force transmit makes sure that the players can see the glow through wall correctly.
+    //This is usually for alive players for the anti-wallhack made by valve.
+    destoryGlows();
+    if(playersInESP > 0) {
+        sv_force_transmit_players.SetString("1", true, false);
+        createGlows();
+    } else {
+        sv_force_transmit_players.SetString("0", true, false);
+    }
+}
+
+public void destoryGlows() {
+    for(int client = 1; client <= MaxClients; client++) {
+        if(IsClientInGame(client)) {
+            RemoveSkin(client);
+        }
+    }
+}
+
+public void RemoveSkin(int client) {
+    int index = EntRefToEntIndex(playerModels[client]);
+    if(index > MaxClients && IsValidEntity(index)) {
+        SetEntProp(index, Prop_Send, "m_bShouldGlow", false);
+        AcceptEntityInput(index, "FireUser1");
+    }
+    playerModels[client] = INVALID_ENT_REFERENCE;
+    playerModelsIndex[client] = -1;
+}
+public void createGlows() {
+    char model[PLATFORM_MAX_PATH];
+    char attachment[PLATFORM_MAX_PATH];
+    int skin = -1;
+    //int showTeam = cTeam.IntValue; 1
+    //int useModel = cModel.IntValue; 0
+
+	attachment = "primary";
+ 
+    //Loop and setup a glow on alive players.
+    for(int client = 1; client <= MaxClients; client++) {
+        if(!IsClientInGame(client) || !IsPlayerAlive(client)) {
+            continue;
+        }
+        playerTeam[client] = GetClientTeam(client);
+        if(playerTeam[client] <= 1) {
+            continue;
+        }
+        //Create Skin
+		GetClientModel(client, model, sizeof(model));
+     
+        //skin = CreatePlayerModelProp(client, model, attachment);
+		skin = CPS_SetSkin(client, model, CPS_RENDER);
+        if(skin > MaxClients) 
+		{
+            playerTeam[client] = GetClientTeam(client);
+			//Display Enemys
+			if(SDKHookEx(skin, SDKHook_SetTransmit, OnSetTransmit))
+			{
+				SetGlow(skin);
+			}
+        }
+    }
+}
+public Action OnSetTransmit(int entity, int client) {
+    if(canSeeESP[client] && playerModelsIndex[client] != entity) 
+	{
+        return Plugin_Continue;
+    }
+    return Plugin_Handled;
+}
+public SetGlow(int skin)
+{
+	SetupGlow(skin);
+}
+public void SetupGlow(int entity) {
+    static offset;
+    // Get sendprop offset for prop_dynamic_override
+    if (!offset && (offset = GetEntSendPropOffs(entity, "m_clrGlow")) == -1) {
+        LogError("Unable to find property offset: \"m_clrGlow\"!");
+        return;
+    }
+
+    // Enable glow for custom skin
+    SetEntProp(entity, Prop_Send, "m_bShouldGlow", true);
+    SetEntProp(entity, Prop_Send, "m_nGlowStyle", 0);
+    SetEntPropFloat(entity, Prop_Send, "m_flGlowMaxDist", 10000.0);
+
+    // So now setup given glow colors for the skin
+	new color[4] = {255, 0, 0, 255};
+    for(int i=0;i<3;i++) {
+        SetEntData(entity, offset + i, color[i], _, true); 
+    }
+}
 // check
-// https://github.com/MitchDizzle/CSGO_AdminESP/blob/master/scripting/csgo_admin_esp.sp
 // https://github.com/Franc1sco/MolotovCockTails/blob/master/molotov.sp
