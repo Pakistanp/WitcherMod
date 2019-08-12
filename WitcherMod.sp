@@ -1282,7 +1282,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 		if(playerClass[attacker] == 13)
 		{
 			if(playerDamageReduction[attacker] > 20)
-				damage *= (playerDamageReduction[attacker] - 20) / 100.0;
+				damage *= 1.0 - ((playerDamageReduction[attacker] - 20) / 100.0);
 		}
 		
 		int exp = 0;
@@ -1660,7 +1660,7 @@ public ResetPoints(client)
 	playerChanceToRefillAmmo[client] = 0;
 	playerBleedDamage[client] = 0;
 	playerVampire[client] = 0;
-	playerChanceToRespawn[client] = 0;
+	//playerChanceToRespawn[client] = 0;
 }
 
 public void DealMagicDamage(victim, attacker)
@@ -2755,6 +2755,7 @@ void SetSpecifyStats(client)
 		case 16: //Eredin
 		{
 			playerVampire[client] = 5 + ((RoundToFloor(playerIntelligence[client] / 10.0)) > 20 ? 20 : (RoundToFloor(playerIntelligence[client] / 10.0)));
+			playerChanceToRespawn[client] = 25;
 		}
 	}
 }
@@ -2865,7 +2866,7 @@ public void GiveItem(client)
 			playerBonusChanceToBleed[client] = GetRandomInt(5, 15);
 			playerBonusBleedDamage[client] = 2;
 			
-			PrintToChat(client, " Znalazles przedmiot: %s :: Masz %i%% szans na wywołanie kwrawienia przystrzale.", playerItemName[client], playerBonusChanceToBleed[client]);
+			PrintToChat(client, " Znalazles przedmiot: %s :: Masz %i%% szans na wywołanie kwrawienia przy strzale.", playerItemName[client], playerBonusChanceToBleed[client]);
 		}
 	}
 	CheckStats(client);
@@ -3098,7 +3099,7 @@ stock SetArmor(client)
 {
 	if(playerClass[client] == 12)
 	{
-		SetEntProp( client, Prop_Send, "m_ArmorValue", 100, 1 );
+		SetEntProp( client, Prop_Send, "m_ArmorValue", 125, 1 );
 	}
 }
 stock FreezePlayer(client)
