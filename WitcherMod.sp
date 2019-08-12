@@ -213,6 +213,8 @@ new String:playerModel[MAXPLAYERS+1][64];
 new bool:playerIsBleed[MAXPLAYERS+1] = {false, ...};
 new playerBleedBy[MAXPLAYERS+1]= {-1, ...};
 new isPlayerFrozen[MAXPLAYERS+1] = {false, ...};
+new bool:playerIsFury[MAXPLAYERS+1] = {false, ...};
+new bool:skillWasUsed[MAXPLAYERS+1] = {false, ...};
 
 new playerMinutes[MAXPLAYERS+1] = {0, ...};
 new playerKillsSeries[MAXPLAYERS+1] = {0, ...};
@@ -523,7 +525,8 @@ public OnRoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 				handleMenuPoints[i] = CreateTimer(0.2, SetMenuPointsTimer, i);
 				playerToSetPoints[i] = false;
 			}
-				
+			
+			skillWasUsed[i] = false;
 			playerCooldown[i] = 0.0;
 			revivingTarget[i] = -1;
 			skillHud[i] = "Gotowy";
@@ -990,97 +993,100 @@ public SetMenuPoints(client)
 }
 public int MenuPoints_Handler(Menu menu, MenuAction action, int client, int a)
 {
-	switch(action)
+	if(IsValidClient(client))
 	{
-		case MenuAction_Select:
+		switch(action)
 		{
-			switch(a)
+			case MenuAction_Select:
 			{
-				case 0:
+				switch(a)
 				{
-					playerIntelligence[client]++;
-					playerPoints[client]--;
-				}
-				case 1:
-				{
-					playerStrength[client]++;
-					playerPoints[client]--;
-				}
-				case 2:
-				{
-					playerDexterity[client]++;
-					playerPoints[client]--;
-				}
-				case 3:
-				{
-					playerAgility[client]++;
-					playerPoints[client]--;
-				}
-				case 4:
-				{
-					if(playerPoints[client] >= 25)
+					case 0:
 					{
-						playerIntelligence[client] += 25;
-						playerPoints[client] -= 25;
+						playerIntelligence[client]++;
+						playerPoints[client]--;
 					}
-					else
+					case 1:
 					{
-						playerIntelligence[client] += playerPoints[client];
-						playerPoints[client] = 0;
+						playerStrength[client]++;
+						playerPoints[client]--;
+					}
+					case 2:
+					{
+						playerDexterity[client]++;
+						playerPoints[client]--;
+					}
+					case 3:
+					{
+						playerAgility[client]++;
+						playerPoints[client]--;
+					}
+					case 4:
+					{
+						if(playerPoints[client] >= 25)
+						{
+							playerIntelligence[client] += 25;
+							playerPoints[client] -= 25;
+						}
+						else
+						{
+							playerIntelligence[client] += playerPoints[client];
+							playerPoints[client] = 0;
+						}
+					}
+					case 5:
+					{
+						if(playerPoints[client] >= 25)
+						{
+							playerStrength[client] += 25;
+							playerPoints[client] -= 25;
+						}
+						else
+						{
+							playerStrength[client] += playerPoints[client];
+							playerPoints[client] = 0;
+						}
+					}
+					case 6:
+					{
+						if(playerPoints[client] >= 25)
+						{
+							playerDexterity[client] += 25;
+							playerPoints[client] -= 25;
+						}
+						else
+						{
+							playerDexterity[client] += playerPoints[client];
+							playerPoints[client] = 0;
+						}
+					}
+					case 7:
+					{
+						if(playerPoints[client] >= 25)
+						{
+							playerAgility[client] += 25;
+							playerPoints[client] -= 25;
+						}
+						else
+						{
+							playerAgility[client] += playerPoints[client];
+							playerPoints[client] = 0;
+						}
 					}
 				}
-				case 5:
-				{
-					if(playerPoints[client] >= 25)
-					{
-						playerStrength[client] += 25;
-						playerPoints[client] -= 25;
-					}
-					else
-					{
-						playerStrength[client] += playerPoints[client];
-						playerPoints[client] = 0;
-					}
-				}
-				case 6:
-				{
-					if(playerPoints[client] >= 25)
-					{
-						playerDexterity[client] += 25;
-						playerPoints[client] -= 25;
-					}
-					else
-					{
-						playerDexterity[client] += playerPoints[client];
-						playerPoints[client] = 0;
-					}
-				}
-				case 7:
-				{
-					if(playerPoints[client] >= 25)
-					{
-						playerAgility[client] += 25;
-						playerPoints[client] -= 25;
-					}
-					else
-					{
-						playerAgility[client] += playerPoints[client];
-						playerPoints[client] = 0;
-					}
-				}
+				CheckStats(client);
+				SetSpecifyStats(client);
+				SetPlayerSpeed(client, 1.0 + playerSpeed[client]);
 			}
-			CheckStats(client);
-			SetSpecifyStats(client);
-			SetPlayerSpeed(client, 1.0 + playerSpeed[client]);
+			case MenuAction_End:
+				delete menu;
 		}
-		case MenuAction_End:
-			delete menu;
+		if(GetClientMenu(client, INVALID_HANDLE) == MenuSource_None && playerPoints[client] > 0 && IsPlayerAlive(client) && handleMenuPoints[client] == null)
+		{
+			handleMenuPoints[client] = CreateTimer(0.01, SetMenuPointsTimer, client);
+		}
+		isMenuPointsDisplayed[client] = false;
 	}
-	if(playerPoints[client] > 0 && IsPlayerAlive(client) && handleMenuPoints[client] == null && GetClientMenu(client, INVALID_HANDLE) == MenuSource_None)
-	{
-		handleMenuPoints[client] = CreateTimer(0.01, SetMenuPointsTimer, client);
-	}
-	isMenuPointsDisplayed[client] = false;
 	return 0;
 }
 public Action:Event_PlayerChangeTeam(Handle:hEvent, const String:strName[], bool:bBroadcast)
@@ -1181,12 +1187,14 @@ public Action:Event_BombDefused(Handle:hEvent, const String:strName[], bool:bBro
 }
 public Action:OnWeaponCanUse(client, weapon)
 {
-    if(!playerIsChicken[client])
+    decl String:classWeapon[32]; 
+    GetEdictClassname(weapon, classWeapon, sizeof(classWeapon)); 
+
+    if(playerIsChicken[client] || (playerIsFury[client] && !StrEqual(classWeapon, "weapon_knife")))
     {
-        return Plugin_Continue;    
+        return Plugin_Handled;    
     }
-	PrintToChat(client,"test");
-    return Plugin_Handled;
+    return Plugin_Continue;
 }  
 public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3])
 {
@@ -1260,8 +1268,16 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 		}
 		if(playerBonusVampire[attacker] > 0 || playerVampire[attacker] > 0)
 		{
-			damage += float(playerBonusVampire[attacker] + playerVampire[attacker]);
-			AddPlayerHp(attacker, playerBonusVampire[attacker] + playerVampire[attacker]);
+			if(playerIsFury[attacker] && !playerIsBleed[victim])
+			{
+				damage += float(playerBonusVampire[attacker]);
+				AddPlayerHp(attacker, playerBonusVampire[attacker] + playerVampire[attacker]);
+			}
+			else
+			{
+				damage += float(playerBonusVampire[attacker] + playerVampire[attacker]);
+				AddPlayerHp(attacker, playerBonusVampire[attacker] + playerVampire[attacker]);
+			}
 		}
 		if(playerClass[attacker] == 13)
 		{
@@ -1567,7 +1583,7 @@ public Action:Timer_ServerHud(Handle:hTimer, Handle:hDataPack)
 	decl String:message[220]; 
 	if(playerClass[client] == 4 || playerBonusQueen[client] > 0)
 		Format(message, sizeof(message),"Klasa: %s Tarcza: %d Skill: %s\nLevel: %d EXP: %d/%d", Class[playerClass[client]], playerMagicHP[client], skillHud[client], playerLevel[client], playerExp[client], LevelXP[playerLevel[client]]);
-	else if(playerClass[client] == 5)
+	else if(playerClass[client] == 5 || playerClass[client] == 16)
 		Format(message, sizeof(message), "Klasa: %s \nLevel: %d EXP: %d/%d", Class[playerClass[client]], playerLevel[client], playerExp[client], LevelXP[playerLevel[client]]);
 	else if(playerClass[client] == 10)
 		Format(message, sizeof(message), "Klasa: %s Skill: %s Leczenie: %s\nLevel: %d EXP: %d/%d", Class[playerClass[client]], skillHud[client], hudOption[client], playerLevel[client], playerExp[client], LevelXP[playerLevel[client]]);
@@ -1674,6 +1690,14 @@ public Action:ExtinguishPlayerTimer(Handle:timer, any:client)
 {
 	ExtinguishEntity(client);
 	playerIgnitedBy[client] = 0;
+}
+public Action:UnableFuryTimer(Handle:timer, any:client)
+{
+	CheckGlows(false);
+	playerIsFury[client] = false;
+	playerVampire[client] = 0;
+	SetPlayerGravity(client, 1.0);
+	playerChanceToBleed[client] -= 40;
 }
 public Action:CooldownTimer(Handle:timer, any:client)
 {
@@ -1919,16 +1943,30 @@ void SetBleed(client)
 	if(!playerIsBleed[client] && !(GetClientButtons(client) & IN_WALK) && playerBleedBy[client] > 0)
 	{
 		playerIsBleed[client] = true;
+		CreateTimer(0.5, CreateBleedTimer, client, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 		CreateTimer(5.0, UnBleedTimer, client);
 	}
-	else if(playerIsBleed[client])
+}
+
+void MakeBleed(victim, attacker)
+{
+	playerBleedBy[victim] = attacker;
+	CheckGlows(true);
+}
+
+public Action:UnBleedTimer(Handle:timer, any:client)
+{
+	playerIsBleed[client] = false;
+	playerBleedBy[client] = -1;
+	CheckGlows(false);
+}
+public Action:CreateBleedTimer(Handle:timer, any:client)
+{
+	if(playerIsBleed[client])
 	{
-		for (new i = 0; i < 3; i++)
-		{
-			ChanceParticle(client, "blood_impact_red_01_backspray");
-			ChanceParticle(client, "blood_impact_drops1");
-			ChanceParticle(client, "blood_impact_red_01_drops");
-		}
+		ChanceParticle(client, "blood_impact_red_01_backspray");
+		ChanceParticle(client, "blood_impact_drops1");
+		ChanceParticle(client, "blood_impact_red_01_drops");
 
 		ChanceParticle(client, "blood_impact_red_01_goop_c");
 		ChanceParticle(client, "blood_impact_goop_medium");
@@ -1938,20 +1976,12 @@ void SetBleed(client)
 		ChanceParticle(client, "blood_impact_basic");
 		
 		DealMagicDamage(client, playerBleedBy[client]);
+		
+		return Plugin_Continue;
 	}
+	else
+		return Plugin_Stop;
 }
-
-void MakeBleed(victim, attacker)
-{
-	playerBleedBy[victim] = attacker;
-}
-
-public Action:UnBleedTimer(Handle:timer, any:client)
-{
-	playerIsBleed[client] = false;
-	playerBleedBy[client] = -1;
-}
-
 void SetInvisible(client)
 {
 	new String:weapon[32];
@@ -2133,6 +2163,27 @@ void DropWeapon(client)
 {
 	ClientCommand(client, "drop");
 }
+
+void DropWeapons(client)
+{
+	new weapon = GetPlayerWeaponSlot(client, 0);
+    if(weapon != -1)
+		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
+	else
+	{
+		weapon = GetPlayerWeaponSlot(client, 1);
+		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
+	}
+	weapon = GetEntDataEnt2(client, g_hActiveWeapon);
+	decl String:classWeapon[32]; 
+    GetEdictClassname(weapon, classWeapon, sizeof(classWeapon));
+	while(!StrEqual(classWeapon, "weapon_knife"))
+	{
+		CS_DropWeapon(client, weapon, false);
+		weapon = GetEntDataEnt2(client, g_hActiveWeapon);
+		GetEdictClassname(weapon, classWeapon, sizeof(classWeapon));
+	}
+}
 bool:CanMakeChicken(client)
 {
 	return playerBonusIgni[client] == 0 &&
@@ -2226,8 +2277,7 @@ void MakeChicken(victim, attacker)
 	{
 		GetClientModel(victim, playerModel[victim], 64);
 		SetEntityModel(victim, "models/chicken/chicken.mdl");
-		
-		ClientCommand(victim, "drop");
+		DropWeapons(victim);
 		ClientCommand(victim, "thirdperson");
 		CreateTimer(3.0, RemoveChicken, victim );
 		playerIsChicken[victim] = true;
@@ -2346,11 +2396,18 @@ public Action Command_UseSkill(int client, int args)
 			}
 			
 		}
+		if(playerClass[client] == 15)
+		{
+			if(!skillWasUsed[client])
+			{
+				skillWasUsed[client] = true;
+				playerCooldown[client] = 30.0 + playerBonusReduceCooldown[client];	
+				SetFury(client);
+				CreateTimer(0.1, CooldownTimer, client, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+			}
+		}
 		if(playerClass[client] == 16)
 		{
-			checkGlows();
-			playerCooldown[client] = 10.0 - playerBonusReduceCooldown[client];	
-			CreateTimer(0.1, CooldownTimer, client, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 		}
 		SetHud(client);
 	}
@@ -2480,6 +2537,18 @@ UseOneHitSkill(client)
 	}
 }
 
+public SetFury(client)
+{
+	DropWeapons(client);
+	CheckGlows(true);
+	playerIsFury[client] = true;
+	playerVampire[client] = 5 + ((RoundToFloor(playerIntelligence[client] / 10.0)) > 20 ? 20 : (RoundToFloor(playerIntelligence[client] / 10.0)));
+	new gravity = 10 + ((RoundToFloor(playerDexterity[client] / 5.0)) > 40 ? 40 : (RoundToFloor(playerDexterity[client] / 5.0)));
+	SetPlayerGravity(client, 1.0 - gravity / 100.0);
+	ScreenFade(client, {255,0,0,100}, RoundToFloor(playerCooldown[client]));
+	playerChanceToBleed[client] += 40;
+	CreateTimer(playerCooldown[client], UnableFuryTimer, client);
+}
 public void CreateFireBall(int client)
 {
 	new Float:origin[3], Float:angle[3];
@@ -2678,12 +2747,13 @@ void SetSpecifyStats(client)
 		}
 		case 15: //Nithral
 		{
-			
+			playerChanceToBleed[client] = 10;
+			playerBleedDamage[client] = 2;
+			isUsingESP[client] = true;
 		}
 		case 16: //Eredin
 		{
 			playerVampire[client] = 5 + ((RoundToFloor(playerIntelligence[client] / 10.0)) > 20 ? 20 : (RoundToFloor(playerIntelligence[client] / 10.0)));
-			isUsingESP[client] = true;
 		}
 	}
 }
@@ -2991,11 +3061,11 @@ stock ScreenShake(client, Float:duration=0.5, Float:amplitude=30.0, Float:freque
 	EndMessage();
 }  
 
-stock ScreenFade(client, color[4], hold)
+stock ScreenFade(client, color[4], duration)
 { 	 
     new Handle:message = StartMessageOne("Fade", client, USERMSG_RELIABLE);
-    PbSetInt(message, "duration", 300);
-    PbSetInt(message, "hold_time", hold * 1000);
+    PbSetInt(message, "duration", duration * 1000);
+    PbSetInt(message, "hold_time", 30);
     PbSetInt(message, "flags", 0x0009);
     PbSetColor(message, "clr", color);
     EndMessage();
@@ -3420,7 +3490,7 @@ public Action:DeleteParticle(Handle:Timer, any:particle)
 			RemoveEdict(particle);
 	}
 }
-public void checkGlows() {
+public void CheckGlows(bool active) {
 //if(playerIsBleed[client])
     //Check to see if some one has a glow enabled.
     playersInESP = 0;
@@ -3431,7 +3501,7 @@ public void checkGlows() {
             continue;
         }
         canSeeESP[client] = IsPlayerAlive(client);
-        if(canSeeESP[client]) {
+        if(canSeeESP[client] && playerIsFury[client]) {
             playersInESP++;
         }
     }
@@ -3484,13 +3554,12 @@ public void createGlows() {
         //Create Skin
 		GetClientModel(client, model, sizeof(model));
      
-        //skin = CreatePlayerModelProp(client, model, attachment);
 		skin = CPS_SetSkin(client, model, CPS_RENDER);
         if(skin > MaxClients) 
 		{
             playerTeam[client] = GetClientTeam(client);
 			//Display Enemys
-			if(SDKHookEx(skin, SDKHook_SetTransmit, OnSetTransmit))
+			if(SDKHookEx(skin, SDKHook_SetTransmit, OnSetTransmit) && playerBleedBy[client] > 0)
 			{
 				SetGlow(skin);
 			}
