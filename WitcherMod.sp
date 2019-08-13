@@ -8,7 +8,7 @@
 #pragma tabsize 0
 
 #define SQLTABLE "table_witchermod"
-#define BASEEXP 1000.0
+#define BASEEXP 100.0
 
 #define IGNICOLOR	{89,35,13,200}
 #define AARDCOLOR	{0,50,100,200}
@@ -204,7 +204,7 @@ new playerChanceToFreeze[MAXPLAYERS+1];
 new playerVampire[MAXPLAYERS+1];
 new playerChanceToRespawn[MAXPLAYERS+1];
 
-new isReflectionDamage[MAXPLAYERS+1];
+new bool:isReflectionDamage[MAXPLAYERS+1] = {false, ...};
 new playerDecoyMaxCount[MAXPLAYERS+1];
 new playerIsInvisible[MAXPLAYERS+1];
 new bool:playerMove[MAXPLAYERS+1];
@@ -346,6 +346,12 @@ float playerBonusQueenDamage[MAXPLAYERS+1];
 float playerBonusAksjiDamage[MAXPLAYERS+1];
 float playerBonusFireBallDamage[MAXPLAYERS+1];
 float playerBonusCurseDamage[MAXPLAYERS+1];
+
+new playerBonusHeal[MAXPLAYERS+1];
+new playerBonusChanceToRefillAmmo[MAXPLAYERS+1];
+new playerBonusChanceToFreeze[MAXPLAYERS+1];
+new bool:isBonusReflectionDamage[MAXPLAYERS+1];
+new playerBonusReflectDamage[MAXPLAYERS+1];
 
 public Plugin myinfo = {
 	name = "WitcherMod",
@@ -889,9 +895,9 @@ public Action CreateMenuClass(client)
 	{
 		new String:item[64];
 		Format(item, sizeof(item), "%s [%i]", Class[i], playerClassLevel[client][i]);
-		if(StrContains(Class[i],"(Vip)") > -1 && playerVip[client] == 0)
-			menu.AddItem(NULL_STRING, item, ITEMDRAW_DISABLED);
-		else
+		// if(StrContains(Class[i],"(Vip)") > -1 && playerVip[client] == 0)
+			// menu.AddItem(NULL_STRING, item, ITEMDRAW_DISABLED);
+		// else
 			menu.AddItem(NULL_STRING, item);
 	}
 	menu.Display(client, 60);
@@ -1226,7 +1232,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 		}
 		if(playerChanceToFreeze[attacker] > 0)
 		{
-			if(GetRandomInt(1, RoundToFloor(100.0 / (playerChanceToFreeze[attacker] /*+ playerBonusChanceToCrit[attacker]*/))) == 1)
+			if(GetRandomInt(1, RoundToFloor(100.0 / (playerChanceToFreeze[attacker] + playerBonusChanceToFreeze[attacker]))) == 1)
 			{
 				FreezePlayer(victim);
 			}
@@ -1261,7 +1267,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 		{
 			damage += /*playerAdditionalDamage[attacker] + */playerBonusAdditionalDamage[attacker];
 		}
-		if(playerReflectDamage[victim] > 0 && isReflectionDamage[victim])
+		if((playerReflectDamage[victim] > 0 && isReflectionDamage[victim]) || (playerBonusReflectDamage[victim] > 0 && isBonusReflectionDamage[victim]))
 		{
 			playerDamageToReflect[victim] = RoundToFloor(damage);
 			ReflectionOfDamage(attacker, victim);
@@ -1358,6 +1364,10 @@ public int CalcExp(victim, attacker, type, float damage)
 			currentExp += currentBase * MultipleUniqueClass(attacker);	
 			currentExp += currentBase * MultipleAvgLvl(attacker);	
 		}
+	}
+	if(playerVip[attacker] == 1)
+	{
+		currentExp += currentBase * 1.2;
 	}
 	playerExpLastRound[attacker] += RoundToCeil(currentExp);
 	return RoundToCeil(currentExp);
@@ -1467,7 +1477,10 @@ public void SetPlayerGravity (int client, float amount)
 {
 	SetEntityGravity(client, amount);
 }
-
+public float GetPlayerGravity (int client)
+{
+	return GetEntityGravity(client);
+}
 void GiveDecoys(client)
 {
 	for(int j = 0; j < playerDecoyMaxCount[client]; j++)
@@ -1730,11 +1743,10 @@ public Action:RemovePowerTimer(Handle:timer, any:client)
 
 void RemovePower(client)
 {
-		if(playerBonusIgni[client] > 0)
+	if(playerBonusIgni[client] > 0)
 	{
 		playerBonusChanceToBurnSkill[client] -= 20;
 		playerBonusIgniDamage[client] -= 0.15;
-	
 	}
 	if(playerBonusAard[client] > 0)
 	{
@@ -1768,6 +1780,39 @@ void RemovePower(client)
 	{
 		SetPlayerInvisibility(client, 100);
 	}
+	if(playerBonusHeal[client] > 0)
+	{
+		playerBonusHeal[client] -= 10 + (RoundToFloor(playerIntelligence[client] / 10.0));
+	}
+	if(playerBonusChanceToFreeze[client] > 0)
+	{
+		playerBonusChanceToFreeze[client] -= 25;
+	}
+	if(playerBonusReflectDamage[client] > 0)
+	{
+		playerBonusReflectDamage[client] -= 100;
+	}
+	if(playerBonusChanceToBleed[client] > 0)
+	{
+		playerBonusChanceToBleed[client] -= 90;
+	}
+	if(playerBonusBleedDamage[client] > 0)
+	{
+		playerBonusBleedDamage[client] -= 2;
+	}
+	if(playerBonusVampire[client] > 0)
+	{
+		playerBonusVampire[client] -= 10 + (RoundToFloor(playerIntelligence[client] / 10.0));
+	}
+	if(GetPlayerGravity(client) != 1.0)
+	{
+		new gravity = 10 + ((RoundToFloor(playerDexterity[client] / 4.0)) > 50 ? 50 : (RoundToFloor(playerDexterity[client] / 4.0)));
+		SetPlayerGravity(client, GetPlayerGravity(client) + gravity / 100.0);
+	}
+	if(playerBonusChanceToRespawn[client] > 0)
+	{
+		playerBonusChanceToRespawn[client] -= 50;
+	}
 	
 	playerBonusIgni[client] = 0;
 	playerBonusAard[client] = 0;
@@ -1779,6 +1824,10 @@ void RemovePower(client)
 	playerBonusCurse[client] = 0;
 	playerBonusInvisible[client] = 0;
 	playerBonusReviving[client] = 0;
+	playerHealOption[client] = 0;
+	playerBonusChanceToRefillAmmo[client] = 0;
+	isBonusReflectionDamage[client] = false;
+	isUsingESP[client] = false;
 }
 
 bool:RespawnPlayer(client)
@@ -2143,9 +2192,9 @@ public Float:CalculateDamage(victim, attacker)
 	
 	damage *= (1.0 - playerMagicDamageReduction[victim]);
 	//No reductions damage (true damage)
-	if(playerReflectDamage[attacker] > 0 && isReflectionDamage[attacker])
+	if((playerReflectDamage[attacker] > 0 && isReflectionDamage[attacker]) || (playerBonusReflectDamage[attacker] > 0 && isBonusReflectionDamage[attacker]))
 	{
-		damage = playerDamageToReflect[attacker] * playerReflectDamage[attacker] / 100.0;
+		damage = playerDamageToReflect[attacker] * (playerReflectDamage[attacker] + playerBonusReflectDamage[attacker]) / 100.0;
 	}
 	if(playerBleedDamage[attacker] > 0 && playerBonusBleedDamage[attacker] > 0)
 	{
@@ -2267,7 +2316,11 @@ public Action:SetDefaultSpeedTimer(Handle:timer, any:client)
 }
 public Action:ReflectionTimer(Handle:timer, any:client)
 {
-	isReflectionDamage[client] = false;
+	if(isReflectionDamage[client])
+		isReflectionDamage[client] = false;
+	if(isBonusReflectionDamage[client])
+		isBonusReflectionDamage[client] = false;
+	
 	SetEntityRenderMode(client, RENDER_TRANSCOLOR);
 	SetEntityRenderColor(client, 255, 255, 255, 255);
 }
@@ -2344,6 +2397,41 @@ void GainPower(victim, attacker)
 		case 10:
 		{
 			playerBonusReviving[attacker] = 1;
+			playerBonusHeal[attacker] = 10 + (RoundToFloor(playerIntelligence[attacker] / 10.0));
+			playerHealOption[attacker] = 3;
+		}
+		case 12:
+		{
+			playerBonusChanceToRefillAmmo[attacker] = 100;
+		}
+		case 13:
+		{
+			playerBonusReflectDamage[attacker] += 100;
+			isBonusReflectionDamage[attacker] = true;
+			SetEntityRenderMode(attacker, RENDER_TRANSCOLOR);
+			SetEntityRenderColor(attacker, 100, 87, 0, 100);
+			ScreenFade(attacker, {100,87,0,100}, 10 + playerIntelligence[attacker] / 15);
+			CreateTimer(10.0 + playerIntelligence[attacker] / 15.0, ReflectionTimer, attacker);
+		}
+		case 14:
+		{
+			playerBonusChanceToFreeze[attacker] += 25;
+		}
+		case 15:
+		{
+			new gravity = 10 + ((RoundToFloor(playerDexterity[attacker] / 4.0)) > 50 ? 50 : (RoundToFloor(playerDexterity[attacker] / 4.0)));
+			SetPlayerGravity(attacker, GetPlayerGravity(attacker) - gravity / 100.0);
+			ScreenFade(attacker, {255,0,0,100}, 10 + playerIntelligence[attacker] / 15);
+			playerBonusChanceToBleed[attacker] += 90;
+			playerBonusBleedDamage[attacker] += 2;
+			playerBonusVampire[attacker] += 10 + (RoundToFloor(playerIntelligence[attacker] / 10.0));
+			isUsingESP[attacker] = true;
+			DropWeapons(attacker);
+		}
+		case 16:
+		{
+			playerBonusVampire[attacker] += 10 + ((RoundToFloor(playerIntelligence[attacker] / 5.0)) > 30 ? 30 : (RoundToFloor(playerIntelligence[attacker] / 5.0)));
+			playerBonusChanceToRespawn[attacker] += 50;
 		}
 	}
 	PrintToChat(attacker, "Otrzymano moc postaci: %s", Class[playerClass[victim]]);
@@ -2545,7 +2633,7 @@ public SetFury(client)
 	playerIsFury[client] = true;
 	playerVampire[client] = 5 + ((RoundToFloor(playerIntelligence[client] / 10.0)) > 20 ? 20 : (RoundToFloor(playerIntelligence[client] / 10.0)));
 	new gravity = 10 + ((RoundToFloor(playerDexterity[client] / 5.0)) > 40 ? 40 : (RoundToFloor(playerDexterity[client] / 5.0)));
-	SetPlayerGravity(client, 1.0 - gravity / 100.0);
+	SetPlayerGravity(client, GetPlayerGravity(client) - gravity / 100.0);
 	ScreenFade(client, {255,0,0,100}, RoundToFloor(playerCooldown[client]));
 	playerChanceToBleed[client] += 40;
 	CreateTimer(playerCooldown[client], UnableFuryTimer, client);
@@ -2732,7 +2820,7 @@ void SetSpecifyStats(client)
 		{
 			playerHeal[client] = 5 + (RoundToFloor(playerIntelligence[client] / 10.0));
 			if(playerHealOption[client] == 0)
-				playerHealOption[client] = 1; // 1 - heal yourself; 2 - heal aliance
+				playerHealOption[client] = 1; // 1 - heal yourself; 2 - heal aliance; 3 - both
 		}
 		case 12: //Ge'els
 		{
@@ -2740,7 +2828,7 @@ void SetSpecifyStats(client)
 		}
 		case 13: //Imlerith
 		{
-			playerReflectDamage[client] = (10 + (playerIntelligence[client] / 10)) > 50 ? 50 : (10 + (playerIntelligence[client] / 10));
+			playerReflectDamage[client] = 10 + ((playerIntelligence[client] / 10) > 50 ? 50 : (playerIntelligence[client] / 10));
 		}
 		case 14: //Caranthir
 		{
@@ -2749,7 +2837,7 @@ void SetSpecifyStats(client)
 		case 15: //Nithral
 		{
 			playerChanceToBleed[client] = 10;
-			playerBleedDamage[client] = 2;
+			playerBleedDamage[client] = 1;
 			isUsingESP[client] = true;
 		}
 		case 16: //Eredin
@@ -2864,7 +2952,7 @@ public void GiveItem(client)
 			playerItemName[client] = "Rachmistrz";
 			playerItem[client] = item;
 			playerBonusChanceToBleed[client] = GetRandomInt(5, 15);
-			playerBonusBleedDamage[client] = 2;
+			playerBonusBleedDamage[client] = 1;
 			
 			PrintToChat(client, " Znalazles przedmiot: %s :: Masz %i%% szans na wywołanie kwrawienia przy strzale.", playerItemName[client], playerBonusChanceToBleed[client]);
 		}
@@ -2896,14 +2984,15 @@ public DropItem(client)
 	playerBonusChanceToRespawn[client] = 0;
 	playerBonusAdditionalDamageKnife[client] = 0;
 	playerBonusVampire[client] = 0;
-	playerBonusGravity[client] = 0;
 	playerBonusChanceToBleed[client] = 0;
 	playerBonusBleedDamage[client] = 0;
 	
 	CheckStats(client);
 	SetSpecifyStats(client);
 	SetPlayerSpeed(client, 1.0 + playerSpeed[client]);
-	SetPlayerGravity(client, 1.0);
+	SetPlayerGravity(client, GetPlayerGravity(client) + (playerBonusGravity[client] / 100.0));
+	
+	playerBonusGravity[client] = 0;
 }
 
 public void BoostStats(client)
@@ -3077,18 +3166,24 @@ stock RefillAmmo(client)
 {
 	if(playerClass[client] == 12)
 	{
-		if(GetRandomInt(1, RoundToFloor(100.0 / (playerChanceToRefillAmmo[client] /*+ playerBonusChanceToRefillAmmo[attacker]*/))) == 1)
+		if(GetRandomInt(1, RoundToFloor(100.0 / (playerChanceToRefillAmmo[client] + playerBonusChanceToRefillAmmo[client]))) == 1)
 		{
 		PrintToChat(client,"ammo");
 			new clip;
 			new entity_index = GetEntDataEnt2(client, g_hActiveWeapon);
 			if (IsValidEdict(client))
 			{
+				
 				if (entity_index == GetPlayerWeaponSlot(client, _:Slot_Primary))
 					clip = g_PlayerPrimaryAmmo[client];
 				else if (entity_index == GetPlayerWeaponSlot(client, _:Slot_Secondary))
 					clip = g_PlayerSecondaryAmmo[client];
-
+				
+				if(playerBonusChanceToRefillAmmo[client] > 0)
+				{
+					clip *=1.5;
+				}
+				
 				if (clip)
 					SetEntData(entity_index, g_iClip1, clip, 4, true);
 			}
@@ -3100,6 +3195,10 @@ stock SetArmor(client)
 	if(playerClass[client] == 12)
 	{
 		SetEntProp( client, Prop_Send, "m_ArmorValue", 125, 1 );
+	}
+	if(playerBonusChanceToRefillAmmo[client] > 0)
+	{
+		SetEntProp( client, Prop_Send, "m_ArmorValue", 200, 1 );
 	}
 }
 stock FreezePlayer(client)
@@ -3369,7 +3468,7 @@ public Action HealTimer(Handle timer, any client)
 }
 void PlayerHeal(client)
 {
-	if(playerHeal[client] > 0)
+	if(playerHeal[client] > 0 || playerBonusHeal[client] > 0)
 	{
 		if(playerHealOption[client] == 1)
 		{
@@ -3379,6 +3478,12 @@ void PlayerHeal(client)
 		else if(playerHealOption[client] == 2)
 		{
 			AddPlayerHp(client, playerHeal[client]);
+		}
+		else if(playerHealOption[client] == 3)
+		{
+			AddPlayerHp(client, playerHeal[client]);
+			HealAliance(client);
+			SetHud(client);
 		}
 	}
 }
