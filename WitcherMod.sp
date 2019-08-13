@@ -532,6 +532,7 @@ public OnRoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 				playerToSetPoints[i] = false;
 			}
 			
+			playerIsFury[i] = false;
 			skillWasUsed[i] = false;
 			playerCooldown[i] = 0.0;
 			revivingTarget[i] = -1;
@@ -747,7 +748,7 @@ public OnClientDisconnect(client)
 	}
 	
 	SDKUnhook(client, SDKHook_OnTakeDamage, OnTakeDamage);
-	CloseHandle(ClientInSeverTimer[client]);
+	//CloseHandle(ClientInSeverTimer[client]);
 }
 
 ShowDamage(victim, attacker, damage)
@@ -946,8 +947,11 @@ public Action:TimerAdd(Handle:timer, any:client)
 	if(IsClientConnected(client) && IsClientInGame(client))
 	{
 		playerMinutes[client]++;
+		blockShowDamageTimer[client] = false;
+		return Plugin_Continue;
 	}
-	blockShowDamageTimer[client] = false;
+	else
+		return Plugin_Stop;
 }
 
 public Action:ResetPlayerLastRoundExpTimer(Handle:timer, any:client)
@@ -1673,7 +1677,7 @@ public ResetPoints(client)
 	playerChanceToRefillAmmo[client] = 0;
 	playerBleedDamage[client] = 0;
 	playerVampire[client] = 0;
-	//playerChanceToRespawn[client] = 0;
+	playerChanceToRespawn[client] = 0;
 }
 
 public void DealMagicDamage(victim, attacker)
@@ -2225,13 +2229,16 @@ void DropWeapons(client)
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
 	}
 	weapon = GetEntDataEnt2(client, g_hActiveWeapon);
-	decl String:classWeapon[32]; 
-    GetEdictClassname(weapon, classWeapon, sizeof(classWeapon));
-	while(!StrEqual(classWeapon, "weapon_knife"))
+	if(weapon > 0)
 	{
-		CS_DropWeapon(client, weapon, false);
-		weapon = GetEntDataEnt2(client, g_hActiveWeapon);
+		decl String:classWeapon[32]; 
 		GetEdictClassname(weapon, classWeapon, sizeof(classWeapon));
+		while(!StrEqual(classWeapon, "weapon_knife"))
+		{
+			CS_DropWeapon(client, weapon, false);
+			weapon = GetEntDataEnt2(client, g_hActiveWeapon);
+			GetEdictClassname(weapon, classWeapon, sizeof(classWeapon));
+		}
 	}
 }
 bool:CanMakeChicken(client)
@@ -2332,6 +2339,7 @@ void MakeChicken(victim, attacker)
 		GetClientModel(victim, playerModel[victim], 64);
 		SetEntityModel(victim, "models/chicken/chicken.mdl");
 		DropWeapons(victim);
+		
 		ClientCommand(victim, "thirdperson");
 		CreateTimer(3.0, RemoveChicken, victim );
 		playerIsChicken[victim] = true;
@@ -2636,6 +2644,7 @@ public SetFury(client)
 	SetPlayerGravity(client, GetPlayerGravity(client) - gravity / 100.0);
 	ScreenFade(client, {255,0,0,100}, RoundToFloor(playerCooldown[client]));
 	playerChanceToBleed[client] += 40;
+	SetPlayerSpeed(client, 1.0 + playerSpeed[client] + 0.2);
 	CreateTimer(playerCooldown[client], UnableFuryTimer, client);
 }
 public void CreateFireBall(int client)
@@ -3168,7 +3177,6 @@ stock RefillAmmo(client)
 	{
 		if(GetRandomInt(1, RoundToFloor(100.0 / (playerChanceToRefillAmmo[client] + playerBonusChanceToRefillAmmo[client]))) == 1)
 		{
-		PrintToChat(client,"ammo");
 			new clip;
 			new entity_index = GetEntDataEnt2(client, g_hActiveWeapon);
 			if (IsValidEdict(client))

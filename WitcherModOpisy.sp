@@ -166,7 +166,7 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 				case 12:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Imlerith \n \n• 120 HP \n• Bardziej wykorzystuje zrecznosc, ale wraz z jej wzrostem maleja zadawane obrażenia. Posiada umiejętność przyciągania wrogów w obszarze 400.\n• Po przyciągnięciu wroga przez 5sek odbija obrażenia.\n• Maksymalna odporność: 80%%\n• Odbicie obrazen[%%]: 10 + int/10, max 60\n");
+					Format(buffer, sizeof(buffer), "          Opis Klasy Imlerith \n \n• 120 HP \n• Bardziej wykorzystuje zrecznosc, ale wraz z jej wzrostem maleja zadawane obrażenia.\n• Posiada umiejętność przyciągania wrogów w obszarze 400.\n• Po przyciągnięciu wroga przez 5sek odbija obrażenia.\n• Maksymalna odporność: 80%%\n• Odbicie obrazen[%%]: 10 + int/10, max 60\n");
 					PanelInfo(client, buffer);
 				}
 				case 13:
