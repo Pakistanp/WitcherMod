@@ -483,7 +483,7 @@ public Action:Event_DecoyStarted(Handle:event, const String:name[], bool:dontBro
 {
 	new client = GetClientOfUserId(GetEventInt(event, "userid"));
 	//new entity = GetClientOfUserId(GetEventInt(event, "entityid"));
-	if((playerClass[client] == 9 || playerBonusInvisible[client] > 0) && decoyEntity[client] != -1)
+	if((playerClass[client] == 9 || playerBonusInvisible[client] > 0) && decoyEntity[client] == -1)
 	{
 		//decoyEntity[client]
 		decoyEntity[client] = FindEntityByClassname(decoyEntity[client], "decoy_projectile")
@@ -896,9 +896,9 @@ public Action CreateMenuClass(client)
 	{
 		new String:item[64];
 		Format(item, sizeof(item), "%s [%i]", Class[i], playerClassLevel[client][i]);
-		// if(StrContains(Class[i],"(Vip)") > -1 && playerVip[client] == 0)
-			// menu.AddItem(NULL_STRING, item, ITEMDRAW_DISABLED);
-		// else
+		if(StrContains(Class[i],"(Vip)") > -1 && playerVip[client] == 0)
+			menu.AddItem(NULL_STRING, item, ITEMDRAW_DISABLED);
+		else
 			menu.AddItem(NULL_STRING, item);
 	}
 	menu.Display(client, 60);

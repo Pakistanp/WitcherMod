@@ -71,6 +71,12 @@ public OnClientDisconnect(client)
 
 public Action Command_Classes(int client, int args)
 {	
+	Classess(client);
+	return Plugin_Handled;
+}
+
+public Classess(int client)
+{
 	Menu menu = new Menu(MenuClasses_Handler);
 	menu.SetTitle("Opisy klas\n \n");
 	for(int i = 1; i < sizeof(Class); i++)
@@ -80,9 +86,7 @@ public Action Command_Classes(int client, int args)
 		menu.AddItem(NULL_STRING, item);
 	}
 	menu.Display(client, 60);
-	return Plugin_Handled;
 }
-
 public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 {
 	switch(action)
@@ -197,18 +201,23 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 
 public Action PanelInfo(client, char msg[512])
 {
-    Panel panels = new Panel();
-    panels.SetTitle(msg);
-    panels.DrawItem("Zamknij");
+	Panel panels = new Panel();
+	panels.SetTitle(msg);
+	panels.DrawItem("Cofnij");
+	panels.DrawItem("Zamknij");
  
-    panels.Send(client, BlankHelp, 30);
-    delete panels;
+	panels.Send(client, BlankHelp, 30);
+	delete panels;
  
-    return Plugin_Handled;
+	return Plugin_Handled;
 }
 
 public int BlankHelp(Menu menu, MenuAction action, int param1, int param2)
 {
+	if (action == MenuAction_Select && param2 == 1)
+	{
+		Classess(param1);
+	}
 }
 
 public Action Command_Stats(int client, int args)
