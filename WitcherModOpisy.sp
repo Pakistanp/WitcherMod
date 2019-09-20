@@ -99,97 +99,97 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Lambert \n \n• 100 HP \n• Posiada znak Igni który atakuje obszarowo zadaje duże obrażenia, ale ma mały zasieg.\nIgni ma szanse na podpalenie wroga.\n• Zasięg: 300 + int\n• Obrażenia: 15%% hp + int * 0.5\n• Szansa na podpalenie [%%]: 20 + int/6.6, max 50\n• Czas podpalenia: 3 sek\n• Cooldown: 20 sek\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}	
 				case 1:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Geralt \n \n• 110 HP \n• Posiada znak Aard który odpycha i atakuje wrogów obszarowo, zadaje małe obrażenia, ma średni zasieg.\nAard ma szanse na wyrzucenie broni.\n• Zasięg: 400 + int * 1.25\n• Obrażenia: 10%% hp + int * 0.25\n• Szansa na wyrzucenie broni [%]: 20 + int/6.6, max 50\n• Cooldown: 20 sek\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 2:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Vesemir \n \n• 120 HP \n• Posiada znak Yrden który, spowalnia wrogów na średnim dystansie.\n• Zadaje nieuchronne dodatkowe obrażenia spowolnionym wrogom.\n• Dodatkowe obrażenia: 2 + int/10\n• Zasięg: 400 + int * 1.25\n• Spowolnienie [%%]: 10 + int * 0.25, max 60\n• Czas spowolnienia: 3 + int / 50 sek (max 8)\n• Cooldown: 20 sek\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 3:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Eskel \n \n• 100 HP \n• Posiada znak Queen który daje magiczna tarcze pochlaniajaca obrażenia.\nKiedy tarcza zostaje zniszczona odrzuca wrogów na małym dystansie i wybucha zadajac małe obrazenia.\n• Moc tarczy (HP): 20 + int\n• Obrażenia od wybuchu: 5%% hp + int * 0.15\n• Zasieg wybuchu: 200 + int\n• Cooldown: 20sek\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 4:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Leto \n \n• 115 HP \n• Posiada znak Aksji zwiekszający szanse oraz obrażenia od trafień krytycznych.\n• Aksji jest aktywne cały czas.\n• Szansa na krytyczne trafienie [%%]: 10 + int/25, max 20\n• Krytyczne obrażenia [%%]: 20 + int/2 , max 200\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 5:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Ciri(klasa jeszcze nie skonczona) \n \n• 125 HP \n• Posiada teleport aby uzyc wybierz noz i PPM.\n• Zasięg teleportu: 600 + int * 2\n• Klasa VIP\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 6:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Yennefer \n \n• 90 HP \n• Posiada czar klatwy ktory atakuje najblizszego wroga w zasiegu.\n• Obrażenia: 20%% hp + int.\n• Zasięg: 600 + int * 2\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 7:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Triss \n \n• 105 HP \n• Posiada czar kula ognia.\n• Kula po zderzeniu wybucha w obszarze 150 zadajac obrazenia.\n• Obrażenia: 15%% hp + int/2 \n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 8:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Keira \n \n• 110 HP \n• Kiedy stoi bez ruchu i trzyma nóż jest niewidzialna.\n• Dostaje decoy na poczatku rundy.\n• Decoy ma model gracza.\n• Ilosc decoy na runde: 1 + int/50 \n• Niewidzialnosc [%%]: 50 - int/5, max 90\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 9:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Felippa \n \n• 100 HP \n• Może wskrzeszac sojuszników przyrzymując E.\n• Co 5 sek leczy siebie albo sojuszników w zależnosci od opcji.\n• Opcje można zmienić używając skilla(useskill).\n• Leczenie: 5 + int/10 \n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 10:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Fringilla \n \n• 110 HP \n• Zamienia najblizszego gracza w kurczaka na 3sek\n• Przejmuje moce postaci na 10 + int/15 sek.\n• Pozyskane moce sa silniejsze i zależą od int.\n• Klasa VIP\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 11:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Ge'els \n \n• 100 HP \n• Po zabiciu wroga ma szanse na regeneracje megazynka oraz armora.\n• Szansa na regeneracje magazynku[%%]: 25 + int\n• Armor: 125\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 12:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Imlerith \n \n• 120 HP \n• Bardziej wykorzystuje zrecznosc, ale wraz z jej wzrostem maleja zadawane obrażenia.\n• Posiada umiejętność przyciągania wrogów w obszarze 400.\n• Po przyciągnięciu wroga przez 5sek odbija obrażenia.\n• Maksymalna odporność: 80%%\n• Odbicie obrazen[%%]: 10 + int/10, max 60\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 13:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Caranthir \n \n• 100 HP \n• Ma 7%% szans na zamrozenie przy strzale. (Klasa nie skonczona[propozycja mozna zglaszac])\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 14:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Nithral \n \n• 100 HP \n• Ma 10%% szans na krwawienie przy strzale.\n• Raz na runde moze uzyc skilla wpadając w furie. Furia daje:\n•• Zmniejszona grawitacje\n•• Widzenie przez sciany krwawiacych wrogów\n•• Ataki krwawiacych wrogow zyskuja wampiryzm\n•• Szansa na krwawienie zwieksza sie do 50%%\n•• Moze atakowac tylko z noza\n• Czas krwawienia: 5sek\n• Czas furii: 30sek\n• Zmniejszona grawitacja[%%]: 10 + zrecznosc/5, max 50\n• Wampiryzm: 5 + int/10, max 25\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 				case 15:
 				{
 					char buffer[512];
 					Format(buffer, sizeof(buffer), "          Opis Klasy Eredin \n \n• 110 HP \n• Ma 25%% szans na odrodzenie sie po smierci.\n• Wampir.\n• Wampiryzm: 5 + int/10, max 25\n• Klasa VIP\n");
-					PanelInfo(client, buffer);
+					PanelInfoClass(client, buffer);
 				}
 			}
 		}
@@ -199,7 +199,7 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 	return 0;
 }
 
-public Action PanelInfo(client, char msg[512])
+public Action PanelInfoClass(client, char msg[512])
 {
 	Panel panels = new Panel();
 	panels.SetTitle(msg);
@@ -224,7 +224,7 @@ public Action Command_Stats(int client, int args)
 {	
 	char buffer[512];
 	Format(buffer, sizeof(buffer), "          Opis Statystyk \n \n• Inteligencja:  zwiększa moc skilli(obrazenia, zasieg itp.)\n• Siła: + 2hp co każdy punkt\n• Zręczność: zmniejsza otrzymywanie obrażenia fizyczne (max 50%). Ma wpływ na wytrzymałośc przedmiotów\n• Zwinnosc: zwieksza predkość gracza (max 50%)\n mniejsza otrzymywane obrazenia magiczne (max 70%)\n");
-	PanelInfo(client, buffer);
+	PanelInfoClass(client, buffer);
 	return Plugin_Handled;
 }
 
