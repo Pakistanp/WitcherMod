@@ -907,7 +907,7 @@ public Action CreateMenuClass(client)
 
 public Action:Command_getTime(client, args)
 {
-    PrintToChat(client, " \x05Grasz na serwerze przez \x03%d\x05 minut co daje Ci \x03%d%%\x05 wiecej expa!", playerMinutes[client], RoundToFloor(playerMinutes[client] / 5.0) * 5);
+    PrintToChat(client, " \x05Grasz na serwerze przez \x03%d\x05 minut co daje Ci \x03%d%%\x05 wiecej expa!", playerMinutes[client], RoundToFloor(playerMinutes[client] / 10.0) * 5);
     return Plugin_Handled;
 }
 
@@ -1407,7 +1407,7 @@ public float MultipleCountPlayers()
 
 public float MultiplePlayerTime(client)
 {
-	return float(RoundToFloor(playerMinutes[client] / 5.0)) * 5.0 / 100.0;
+	return float(RoundToFloor(playerMinutes[client] / 10.0)) * 5.0 / 100.0;
 }
 
 public float MultipleKillsSeries(client)
@@ -2867,7 +2867,7 @@ public void GiveItem(client)
 {
 	new item;
 	item = GetRandomInt(1,11);
-	itemEndurance[client] = GetRandomInt(200 + playerDexterity[client], 400 + playerDexterity[client]);
+	itemEndurance[client] = GetRandomInt(200 + playerDexterity[client], 400 + playerDexterity[client] * 3);
 	
 	switch(item)
 	{
