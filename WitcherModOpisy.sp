@@ -22,7 +22,7 @@ new const String:Class[17][] ={
 "Eredin"
 };
 
-new const String:Hints[13][]={
+new const String:Hints[14][]={
 " \x05Chcesz więcej porad? Wpisz \x03/porada.",
 " \x05Aby przeczytać opisy klas wpisz \x03/klasy.",
 " \x05Informacje na temat statystyk znajdziesz pod komedą \x03/staty.",
@@ -35,6 +35,7 @@ new const String:Hints[13][]={
 " \x05Aby zbindowac skilla pod klawisz wpisz w konsoli \x03bind <klawisz> \"useskill\".",
 " \x05Do wyrzucenia itemu użyj komendy \x03/dropi.",
 " \x05Znalazłeś buga albo masz ciekawe pomysły? Zgłoś to! Możesz dostać puknty które, mozesz wymienić na \x03vipa \x05lub \x03expa!",
+" \x05Wejdź na forum \x03 witchermod.gameclan.pl/forum",
 " \x05Aby sprawdzić działanie itemu wpisz \x03/item."
 };
 
@@ -230,7 +231,7 @@ public Action Command_Stats(int client, int args)
 
 public Action Command_Hint(int client, int args)
 {	
-	PrintToChat(client, "%s",Hints[GetRandomInt(1,12)]);
+	PrintToChat(client, "%s",Hints[GetRandomInt(1,13)]);
 	return Plugin_Handled;
 }
 public Action:HintTimer(Handle:timer, any:client)
