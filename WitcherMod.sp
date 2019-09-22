@@ -216,6 +216,7 @@ new playerBleedBy[MAXPLAYERS+1]= {-1, ...};
 new isPlayerFrozen[MAXPLAYERS+1] = {false, ...};
 new bool:playerIsFury[MAXPLAYERS+1] = {false, ...};
 new bool:skillWasUsed[MAXPLAYERS+1] = {false, ...};
+new bool:skillUsed[MAXPLAYERS+1] = {false, ...};
 
 new playerMinutes[MAXPLAYERS+1] = {0, ...};
 new playerKillsSeries[MAXPLAYERS+1] = {0, ...};
@@ -1353,7 +1354,7 @@ public void GiveExp(client, amount)
 //set damage only for type = 2
 public int CalcExp(victim, attacker, type, float damage)
 {
-	if(4 < GetRealClientCount())
+	if(1 < GetRealClientCount())
 	{
 		float currentExp;
 		float currentBase;
@@ -1742,6 +1743,7 @@ public Action:CooldownTimer(Handle:timer, any:client)
 	if(playerCooldown[client] <= 0.0)
 	{
 		playerCooldown[client] = 0.0;
+		skillUsed[client] = false;
 		skillHud[client] = "Gotowy";
 		return Plugin_Stop;
 	}
@@ -1890,9 +1892,10 @@ public OnGameFrame()
 				CreateMenuClass(i);
 				playerBasePropertyLoaded[i] = false;
 			}
-			if(playerVipLoaded[i])
+			if(playerVipLoaded[i] && playerVip[i] == 1)
 			{
 				CheckVip2(i);
+				playerVipLoaded[i] = false;
 			}
 			
 			TeleportPlayer(i);
@@ -2039,7 +2042,7 @@ public Action:UnBleedTimer(Handle:timer, any:client)
 }
 public Action:CreateBleedTimer(Handle:timer, any:client)
 {
-	if(playerIsBleed[client])
+	if(playerIsBleed[client] && playerMove[client] && !(GetClientButtons(client) & IN_WALK))
 	{
 		ChanceParticle(client, "blood_impact_red_01_backspray");
 		ChanceParticle(client, "blood_impact_drops1");
@@ -2090,52 +2093,87 @@ void SetInvisible(client)
 
 void AddEffects(victim, attacker)
 {
-	
-	if( playerClass[attacker] == 1 || playerBonusIgni[attacker] > 0)
+	if(skillUsed[attacker])
 	{
-		if(GetRandomInt(1, RoundToFloor(100.0 / playerChanceToBurnSkill[attacker])) == 1)
+		if( playerClass[attacker] == 1 )
 		{
-			if(playerIgnitedBy[victim] !=0 )
-				ExtinguishEntity(victim);
-			playerIgnitedBy[victim] = attacker;
-			
-			IgniteEntity(victim, 3.0);
-			CreateTimer(3.0, ExtinguishPlayerTimer, victim);
+			if(GetRandomInt(1, RoundToFloor(100.0 / playerChanceToBurnSkill[attacker])) == 1)
+			{
+				if(playerIgnitedBy[victim] !=0 )
+					ExtinguishEntity(victim);
+				playerIgnitedBy[victim] = attacker;
+				
+				IgniteEntity(victim, 3.0);
+				CreateTimer(3.0, ExtinguishPlayerTimer, victim);
+			}
+		}
+		if( playerClass[attacker] == 2 )
+		{
+			PushPlayerBack(victim, attacker);			
+			ScreenShake(victim);
+			if(GetRandomInt(1, RoundToFloor(100.0 / playerChanceToDropWpnSkill[attacker])) == 1)
+			{
+				DropWeapon(victim);
+			}
+		}
+		if( playerClass[attacker] == 3 )
+		{
+			SlowPlayer(victim, attacker);
+		}
+		if( playerClass[attacker] == 4 )
+		{
+			PushPlayerBack(victim, attacker);			
+			ScreenShake(victim);
+		}
+		if( playerClass[attacker] == 11)
+		{
+			if(CanMakeChicken(attacker))
+			{
+				MakeChicken(victim, attacker);
+			}
+		}
+		if( playerClass[attacker] == 13 && !isReflectionDamage[attacker])
+		{
+			AttractPlayer(victim, attacker);
+			isReflectionDamage[attacker] = true;
+			SetEntityRenderMode(attacker, RENDER_NORMAL);
+			SetEntityRenderColor(attacker, 100, 87, 0, 100);
+			ScreenFade(attacker, {100,87,0,100}, 5);
+			CreateTimer(5.0, ReflectionTimer, attacker);
 		}
 	}
-	if( playerClass[attacker] == 2 || playerBonusAard[attacker] > 0)
+	else
 	{
-		PushPlayerBack(victim, attacker);			
-		ScreenShake(victim);
-		if(GetRandomInt(1, RoundToFloor(100.0 / playerChanceToDropWpnSkill[attacker])) == 1)
+		if( playerBonusIgni[attacker] > 0)
 		{
-			DropWeapon(victim);
+			if(GetRandomInt(1, RoundToFloor(100.0 / playerChanceToBurnSkill[attacker])) == 1)
+			{
+				if(playerIgnitedBy[victim] !=0 )
+					ExtinguishEntity(victim);
+				playerIgnitedBy[victim] = attacker;
+				
+				IgniteEntity(victim, 3.0);
+				CreateTimer(3.0, ExtinguishPlayerTimer, victim);
+			}
 		}
-	}
-	if( playerClass[attacker] == 3 || playerBonusYrden[attacker] > 0)
-	{
-		SlowPlayer(victim, attacker);
-	}
-	if( playerClass[attacker] == 4 || playerBonusQueen[attacker] > 0)
-	{
-		PushPlayerBack(victim, attacker);			
-		ScreenShake(victim);
-	}
-	if( playerClass[attacker] == 11)
-	{
-		if(CanMakeChicken(attacker))
+		if( playerBonusAard[attacker] > 0)
 		{
-			MakeChicken(victim, attacker);
+			PushPlayerBack(victim, attacker);			
+			ScreenShake(victim);
+			if(GetRandomInt(1, RoundToFloor(100.0 / playerChanceToDropWpnSkill[attacker])) == 1)
+			{
+				DropWeapon(victim);
+			}
 		}
-	}
-	if( playerClass[attacker] == 13 && !isReflectionDamage[attacker])
-	{
-		AttractPlayer(victim, attacker);
-		isReflectionDamage[attacker] = true;
-		SetEntityRenderMode(attacker, RENDER_TRANSCOLOR);
-		SetEntityRenderColor(attacker, 100, 87, 0, 100);
-		ScreenFade(attacker, {100,87,0,100}, 5);
-		CreateTimer(5.0, ReflectionTimer, attacker);
+		if( playerBonusYrden[attacker] > 0)
+		{
+			SlowPlayer(victim, attacker);
+		}
+		if( playerBonusQueen[attacker] > 0)
+		{
+			PushPlayerBack(victim, attacker);			
+			ScreenShake(victim);
+		}
 	}
 }
 public float CalculateRadius(client)
@@ -2471,6 +2509,7 @@ public Action Command_UseSkill(int client, int args)
 {	
 	if (IsClientInGame(client) && IsPlayerAlive(client) && !playerIsChicken[client])
 	{
+		skillUsed[client] = true;
 		if((playerClass[client] == 1 || playerClass[client] == 2 || playerClass[client] == 3 || playerClass[client] == 13 || playerBonusIgni[client] > 0 || playerBonusAard[client] > 0 || playerBonusYrden[client] > 0) && playerCooldown[client] == 0.0)
 		{
 			if (playerClass[client] == 2)
@@ -2749,7 +2788,7 @@ public CreateExplosion( Float:vec[3], client)
 
 	Format( exp_sample, 64, "weapons/hegrenade/explode%d.wav", GetRandomInt( 3, 5 ) );
 
-	EmitAmbientSound( exp_sample, vec, _, SNDLEVEL_GUNFIRE  );
+	EmitAmbientSound( exp_sample, vec  );
 
 	TeleportEntity(ent, vec, NULL_VECTOR, NULL_VECTOR);
 	AcceptEntityInput(ent, "explode");
@@ -3740,7 +3779,7 @@ public void CheckVip(int client)
 	GetClientAuthId(client, AuthId_Engine, sid, sizeof(sid));
 	
 	new String:query[512];
-	Format(query, sizeof(query), "SELECT vip_date FROM %s WHERE sid='%s'", SQLTABLE, sid);
+	Format(query, sizeof(query), "SELECT vip_date, vip FROM %s WHERE sid='%s'", SQLTABLE, sid);
 	
 	SQL_TQuery(DB, SQL_OnCheckVip, query, client);
 }
@@ -3796,6 +3835,7 @@ public SQL_OnCheckVip(Handle:hDriver, Handle:hResult, const String:sError[], any
 		{
 			SQL_FetchRow(hResult);
 			SQL_FetchString(hResult, 0, dateTime[iData], 30);
+			playerVip[iData] = SQL_FetchInt(hResult, 1);
 			playerVipLoaded[iData] = true;
 		}
 	}
