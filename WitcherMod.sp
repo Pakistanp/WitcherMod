@@ -4,6 +4,7 @@
 #include <cstrike>
 #include <morecolors>
 #include <CustomPlayerSkins>
+#include <unixtime_sourcemod>
 
 #pragma tabsize 0
 
@@ -296,6 +297,9 @@ new g_beamsprite, g_halosprite;
 
 new entLighting[MAXPLAYERS+1];
 
+char dateTime[MAXPLAYERS+1][30];
+new bool:playerVipLoaded[MAXPLAYERS+1];
+
 //ITEMS
 new playerItem[MAXPLAYERS+1];
 new String:playerItemName[MAXPLAYERS+1][64];
@@ -422,7 +426,7 @@ public void OnPluginStart()
 }
 
 public void OnMapStart()
-{
+{	
 	CreateTimer(60.0, SetTimeFor);
 	g_beamsprite = PrecacheModel("materials/sprites/laserbeam.vmt");
 	g_halosprite = PrecacheModel("materials/sprites/halo.vmt");
@@ -550,7 +554,7 @@ public OnRoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 void SQL_Start()
 {
 	new String:query[512];
-	Format(query, sizeof(query), "CREATE TABLE IF NOT EXISTS `%s`(`nick` VARCHAR(64),`ip` VARCHAR(64),`sid` VARCHAR(64),`klasa` integer(2),`lvl` integer(3) DEFAULT 1,`exp` integer(9) DEFAULT 0,`sila` integer(3) DEFAULT 0,`inte` integer(3) DEFAULT 0,`zrecznosc` integer(3) DEFAULT 0,`zwinnosc` integer(3) DEFAULT 0,`vip` integer(1) DEFAULT 0,`klucz` VARCHAR(64))", SQLTABLE);
+	Format(query, sizeof(query), "CREATE TABLE IF NOT EXISTS `%s`(`nick` VARCHAR(64),`ip` VARCHAR(64),`sid` VARCHAR(64),`klasa` integer(2),`lvl` integer(3) DEFAULT 1,`exp` integer(9) DEFAULT 0,`sila` integer(3) DEFAULT 0,`inte` integer(3) DEFAULT 0,`zrecznosc` integer(3) DEFAULT 0,`zwinnosc` integer(3) DEFAULT 0,`vip` integer(1) DEFAULT 0,`klucz` VARCHAR(64),`vip_date` VARCHAR(64))", SQLTABLE);
 	
 	new Handle:queryH = SQL_Query(DB, query);
 	
@@ -691,13 +695,16 @@ public SQL_SaveExp(client)
 	if(IsValidClient(client) && !IsFakeClient(client))
 	{
 		new String:sid[64];
-		
+		if(	playerBonusAllStats[client] > 0)
+			SubstStats(client);
+			
 		GetClientAuthId(client, AuthId_Engine, sid, sizeof(sid));
 		
 		new String:query[512];			
 		Format(query, sizeof(query) ,"UPDATE `%s` SET `lvl`='%i',`exp`='%i',`sila`='%i',`inte`='%i',`zrecznosc`='%i',`zwinnosc`='%i' WHERE `sid`='%s' AND `klasa`='%i'", SQLTABLE, playerLevel[client], playerExp[client], playerStrength[client], playerIntelligence[client], playerDexterity[client], playerAgility[client],sid,playerClass[client]);
 		SQL_TQuery(DB, SQL_OnSaveExp, query);
-		
+		if(	playerBonusAllStats[client] > 0)
+			BoostStats(client);
 	}
 }
 public SQL_OnSaveExp(Handle:hDriver, Handle:hResult, const String:sError[], any:iData) {
@@ -730,6 +737,9 @@ public void OnClientPutInServer(int client)
 		}
 	}
 	ResetPlayer(client, false);
+	
+	CheckVip(client);
+	
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 	SDKHook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
 	
@@ -824,6 +834,8 @@ public Action Command_Reset(int client, int args)
 	if(playerClass[client] > 0)
 	{
 		new points;
+		if(	playerBonusAllStats[client] > 0)
+			SubstStats(client);
 		points = playerAgility[client] + playerDexterity[client] + playerIntelligence[client] + playerStrength[client];
 		ForcePlayerSuicide(client);				
 		ResetPoints(client);
@@ -832,6 +844,8 @@ public Action Command_Reset(int client, int args)
 		playerSpeed[client] = 0.0;
 		SetMenuPoints(client);
 		revivingTarget[client] = -1;
+		if(	playerBonusAllStats[client] > 0)
+			BoostStats(client);
 	}
 	return Plugin_Handled;
 }
@@ -1339,42 +1353,47 @@ public void GiveExp(client, amount)
 //set damage only for type = 2
 public int CalcExp(victim, attacker, type, float damage)
 {
-	float currentExp;
-	float currentBase;
-	switch(type)
+	if(4 < GetRealClientCount())
 	{
-		case 1:
+		float currentExp;
+		float currentBase;
+		switch(type)
 		{
-			currentBase = BASEEXP * MultipleLevelDifference(victim, attacker);
-			currentExp = currentBase + currentBase * MultipleCountPlayers();
-			currentExp += currentBase * MultiplePlayerTime(attacker);
-			currentExp += currentBase * MultipleKillsSeries(attacker);
-			currentExp += currentBase * MultipleUniqueClass(attacker);	
-			currentExp += currentBase * MultipleAvgLvl(attacker);	
+			case 1:
+			{
+				currentBase = BASEEXP * MultipleLevelDifference(victim, attacker);
+				currentExp = currentBase + currentBase * MultipleCountPlayers();
+				currentExp += currentBase * MultiplePlayerTime(attacker);
+				currentExp += currentBase * MultipleKillsSeries(attacker);
+				currentExp += currentBase * MultipleUniqueClass(attacker);	
+				currentExp += currentBase * MultipleAvgLvl(attacker);	
+			}
+			case 2:
+			{
+				currentBase = 1.0 * damage / 10.0;
+				currentExp = currentBase + currentBase * MultipleCountPlayers();
+				currentExp += currentBase * MultiplePlayerTime(attacker);
+				currentExp += currentBase * MultipleUniqueClass(attacker);	
+				currentExp += currentBase * MultipleAvgLvl(attacker);	
+			}
+			case 3:
+			{
+				currentBase = BASEEXP;
+				currentExp = currentBase + currentBase * MultipleCountPlayers();
+				currentExp += currentBase * MultiplePlayerTime(attacker);
+				currentExp += currentBase * MultipleUniqueClass(attacker);	
+				currentExp += currentBase * MultipleAvgLvl(attacker);	
+			}
 		}
-		case 2:
+		if(playerVip[attacker] == 1)
 		{
-			currentBase = 1.0 * damage / 10.0;
-			currentExp = currentBase + currentBase * MultipleCountPlayers();
-			currentExp += currentBase * MultiplePlayerTime(attacker);
-			currentExp += currentBase * MultipleUniqueClass(attacker);	
-			currentExp += currentBase * MultipleAvgLvl(attacker);	
+			currentExp += currentBase * 1.2;
 		}
-		case 3:
-		{
-			currentBase = BASEEXP;
-			currentExp = currentBase + currentBase * MultipleCountPlayers();
-			currentExp += currentBase * MultiplePlayerTime(attacker);
-			currentExp += currentBase * MultipleUniqueClass(attacker);	
-			currentExp += currentBase * MultipleAvgLvl(attacker);	
-		}
+		playerExpLastRound[attacker] += RoundToCeil(currentExp);
+		return RoundToCeil(currentExp);
 	}
-	if(playerVip[attacker] == 1)
-	{
-		currentExp += currentBase * 1.2;
-	}
-	playerExpLastRound[attacker] += RoundToCeil(currentExp);
-	return RoundToCeil(currentExp);
+	else
+		return 0;
 }
 
 public float MultipleLevelDifference(victim, attacker)
@@ -1870,6 +1889,10 @@ public OnGameFrame()
 			{
 				CreateMenuClass(i);
 				playerBasePropertyLoaded[i] = false;
+			}
+			if(playerVipLoaded[i])
+			{
+				CheckVip2(i);
 			}
 			
 			TeleportPlayer(i);
@@ -3711,5 +3734,103 @@ public void SetupGlow(int entity) {
         SetEntData(entity, offset + i, color[i], _, true); 
     }
 }
+public void CheckVip(int client)
+{	
+	new String:sid[32];
+	GetClientAuthId(client, AuthId_Engine, sid, sizeof(sid));
+	
+	new String:query[512];
+	Format(query, sizeof(query), "SELECT vip_date FROM %s WHERE sid='%s'", SQLTABLE, sid);
+	
+	SQL_TQuery(DB, SQL_OnCheckVip, query, client);
+}
+
+public void CheckVip2(int client)
+{
+	int iTime, iYear, iMonth, iDay, iHour, iMinute, iSecond;
+    int iYear2, iMonth2, iDay2;
+    iTime = GetTime();
+    
+	UnixToTime( iTime , iYear , iMonth , iDay , iHour , iMinute , iSecond );
+	iHour += 2;
+	
+	//StringToInt(dateTime[client]);
+	
+	char test[10];
+	decl String:outstr[512];
+
+	SplitString(dateTime[client], "/", test, 10);
+	strcopy(outstr, sizeof(outstr), dateTime[client][strlen(test) + 1]);
+	iMonth2 = StringToInt(test);
+	SplitString(outstr, "/", test, 10);
+	strcopy(outstr, sizeof(outstr), outstr[strlen(test) + 1]);
+	iDay2 = StringToInt(test);
+	iYear2 = StringToInt(outstr);
+	
+	if(iYear > iYear2)
+	{
+		SetVip(client, 0);
+	}
+	else
+	{
+		if(iMonth > iMonth2)
+		{
+			SetVip(client, 0);
+		}
+		else
+		{
+			if(iDay > iDay2)
+			{
+				SetVip(client, 0);
+			}
+		}
+	}
+	
+}
+public SQL_OnCheckVip(Handle:hDriver, Handle:hResult, const String:sError[], any:iData) 
+{
+	playerVipLoaded[iData] = false;
+	if(hResult != INVALID_HANDLE)
+	{
+		if(SQL_MoreRows(hResult))
+		{
+			SQL_FetchRow(hResult);
+			SQL_FetchString(hResult, 0, dateTime[iData], 30);
+			playerVipLoaded[iData] = true;
+		}
+	}
+	else
+	{
+		PrintToServer("[SQL][ERROR] SQL-Query failed! Error: %s", sError);
+		CloseHandle(hResult);
+		hResult = INVALID_HANDLE;
+	}
+}
+
+public void SetVip(int client, int value)
+{
+	if(IsValidClient(client) && !IsFakeClient(client))
+	{
+		new String:sid[64];
+		
+		GetClientAuthId(client, AuthId_Engine, sid, sizeof(sid));
+		
+		new String:query[512];			
+		Format(query, sizeof(query) ,"UPDATE `%s` SET `vip`='%i' WHERE `sid`='%s'", SQLTABLE, value, sid);
+		SQL_TQuery(DB, SQL_OnSaveVip, query);		
+	}
+}
+public SQL_OnSaveVip(Handle:hDriver, Handle:hResult, const String:sError[], any:iData) {
+
+    if (hResult == INVALID_HANDLE) 
+	{	
+        PrintToServer("[SQL][ERROR] Save failed! Error: %s", sError);
+    } 
+	else 
+	{
+		CloseHandle(hResult);
+		hResult = INVALID_HANDLE;
+    }
+} 
 // check
 // https://github.com/Franc1sco/MolotovCockTails/blob/master/molotov.sp
