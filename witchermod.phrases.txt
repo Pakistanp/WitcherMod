@@ -1,0 +1,92 @@
+"Phrases"
+{
+	"Ready"
+	{
+		"pl"		"Gotowy"
+		"en"		"Ready"
+	}
+	"AvgLvl"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Średni poziom na serwerze to {2}%d."
+		"en"		" {1}The average level on the server is{2}%d."
+	}
+	"Damage"
+	{
+		"pl"		"Obrażenia %s"
+		"en"		"Damage %s"
+	}
+	"YoursStats"
+	{
+		"#format"	"{1:c}"
+		"pl"		" {1}Twoje statystyki:"
+		"en"		" {1}Your statistics:"
+	}
+	"ChrtIntelligence"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Inteligencja: {2}%d"
+		"en"		" {1}Intelligence: {2}%d"
+	}
+	"ChrtStrength"
+	{
+		"#format"	"{1:c},{2:c},{3:c},{4:c},{5:c}"
+		"pl"		" {1}Siła: {2}%d {3}co daje Ci {4}%d {5}wiecej HP."
+		"en"		" {1}Strength: {2}%d {3}what give you {4}%d {5}more HP."
+	}
+	"ChrtDexterity"
+	{
+		"#format"	"{1:c},{2:c},{3:c},{4:c},{5:c}"
+		"pl"		" {1}Zręczność: {2}%d {3}co daje Ci {4}%.2f% {5}redukcji fizycznych ataków."
+		"en"		" {1}Dexterity: {2}%d {3}what give you {4}%.2f% {5}reduces physical damage."
+	}
+	"ChrtAgility"
+	{
+		"#format"	"{1:c},{2:c},{3:c},{4:c},{5:c},{6:c},{7:c}"
+		"pl"		" {1}Zwinność: {2}%d {3}co daje Ci {4}%.2f% {5}redukcji magicznych ataków oraz {6}%.2f% {7}do szybkości."
+		"en"		" {1}Agility: {2}%d {3}what give you {4}%.2f% {5}reduces magic damage and {6}%.2f% {7}speed."
+	}
+	
+	"DroppedItem"
+	{
+		"pl"		"Wyrzucono przedmiot!"
+		"en"		"You dropped item!"
+	}
+	"NotHaveItem"
+	{
+		"pl"		"Nie posiadasz przedmiotu!"
+		"en"		"You don't have any item!"
+	}
+	"TimeExtraExp"
+	{
+		"#format"	"{1:c},{2:c},{3:c},{4:c},{5:c}"
+		"pl"		" {1}Grasz na serwerze przez {2}%d{3} minut co daje Ci {4}%d%%{5} wiecej expa!"
+		"en"		" {1}You spent {2}%d {3}min on the server what give you {4}%d%% {5}extra exp!"
+	}
+	
+	"ChoiceAtr"
+	{
+		"pl"		"Wybierz atrybut - dostepne punkty %d \n \n"
+		"en"		"Choice attribute - available points %d \n \n"
+	}
+	"Intelligence"
+	{
+		"pl"		"Inteligencja [%d]"
+		"en"		"Intelligence [%d]"
+	}
+	"Strength"
+	{
+		"pl"		"Siła [%d]"
+		"en"		"Strength [%d]"
+	}
+	"Dexterity"
+	{
+		"pl"		"Zręczność [%d]"
+		"en"		"Dexterity [%d]"
+	}
+	"Agility"
+	{
+		"pl"		"Zwinność [%d]"
+		"en"		"Agility [%d]"
+	}
+}

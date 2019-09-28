@@ -1,0 +1,226 @@
+"Phrases"
+{
+	"Welcome"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"pl"		" {1}~ {2}Witaj, {3}%N"
+		"en"		" {1}~ {2}Welcome, {3}%N"
+	}
+	"JoinToCommunity"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"pl"		" {1}~ {2}Dołącz do społeczności {3}%s"
+		"en"		" {1}~ {2}Join the community {3}%s"
+	}
+	"ToChooseClass"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"pl"		" {1}~ {2}Aby wybrać klase wpisz, {3}!klasa"
+		"en"		" {1}~ {2}To choose class write, {3}!class"
+	}
+	"ToChangeLang"
+	{
+		"#format"	"{1:c},{2:c},{3:c},{4:c}"
+		"pl"		" {1}~ {2}Aby zmienić język, wpisz w konsoli, {3}sm_lang lang {4}(np. sm_lang en)"
+		"en"		" {1}~ {2}To change the language, write in the console, {3}sm_lang lang {4}(e.g. sm_lang pl)"
+	}
+	"Hint0"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Chcesz więcej porad? Wpisz {2}!porada."
+		"en"		" {1}Do you want more advice? Write {2}!hint."
+	}
+	"Hint1"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Aby przeczytać opisy klas, wpisz {2}!klasy."
+		"en"		" {1}To read class descriptions, write {2}!classes."
+	}
+	"Hint2"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Informacje na temat statystyk znajdziesz pod komendą {2}!staty."
+		"en"		" {1}Information on statistics can be found under the {2}!stats {1}command."
+	}
+	"Hint3"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Aby zobaczyć obecnie rozdane statystyki, wpisz {2}!postac."
+		"en"		" {1}To view the currently dealt statistics, write {2}!chrt."
+	}
+	"Hint4"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Czy wiesz, że co każde 10 minut spędzone na serwerze dostajesz dodatkowego expa? Wpisz {2}!time."
+		"en"		" {1}Do you know you can get extra exp every 10 minutes spent on the server? Write {2}!time."
+	}
+	"Hint5"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Czy wiesz, że im więcej graczy na serwerze tym większy jest exp?"
+		"en"		" {1}Did you know that the more players on the server, the larger the exp"
+	}
+	"Hint6"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Serie zabójstw dają dodatkowe punkty doświadczenia!"
+		"en"		" {1}The kill series give you additional experience points!"
+	}
+	"Hint7"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Ilość doświadczenia jakie dostajesz zależy również od średniego poziomu na serwerze!"
+		"en"		" {1}The amount of experience you get also depends on the average level on the server!"
+	}
+	"Hint8"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Dostajesz dodatkowe doświadczenie za granie unikalną klasa (jedna osoba +30%, dwie +10%)."
+		"en"		" {1}You get additional experience for playing a unique class (one person + 30%, two + 10%)."
+	}
+	"Hint9"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Aby zbindowac skilla pod klawisz wpisz w konsoli {2}bind klawisz useskill."
+		"en"		" {1}Skill use: bind key useskill"
+	}
+	"Hint10"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Do wyrzucenia itemu użyj komendy {2}!dropi."
+		"en"		" {1}Use to discard the item: {2}!dropi"
+	}
+	"Hint11"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Znalazłeś buga albo masz ciekawe pomysły? Zgłoś to! Możesz dostać puknty które, mozesz wymienić na {2}vipa lub expa!"
+		"en"		" {1}Have you found a bug or have interesting ideas? Report it! You can get puknty which you can exchange for {2}VIP or EXP."
+	}
+	"Hint12"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Wejdź na forum {2}witchermod.gameclan.pl/forum"
+		"en"		" {1}Go to the forum: {2}http://witchermod.gameclan.pl/forum."
+	}
+	"Hint13"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Aby sprawdzić działanie itemu wpisz {2}!item."
+		"en"		" {1}To check the operation of the item, enter: {2}!item"
+	}
+	"Hint14"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Aby kupić vipa napisz na forum do {2}pakistanp."
+		"en"		" {1}To buy a VIP please write to the owner in the forum {2}(pakistanp)."
+	}
+	
+	"Lambert"
+	{
+		"pl"		"          Opis Klasy Lambert \n \n• 100 HP \n• Posiada znak Igni który atakuje obszarowo zadaje duże obrażenia, ale ma mały zasieg.\nIgni ma szanse na podpalenie wroga.\n• Zasięg: 300 + int\n• Obrażenia: 15%% hp + int * 0.5\n• Szansa na podpalenie [%%]: 20 + int/6.6, max 50\n• Czas podpalenia: 3 sek\n• Cooldown: 20 sek\n"
+		"en"		"          Class description Lambert \n \n• 100 HP \n• It has an Igni sign that deals area-wise, deals high damage, but has a small range.\nIgni has a chance to set the enemy on fire.\n• Range: 300 + int\n• Damage: 15%% hp + int * 0.5\n• Chance of arson [%%]: 20 + int/6.6, max 50\n• Arson Time: 3 sec\n• Cooldown: 20 sec\n"
+	}
+	"Geralt"
+	{
+		"pl"		"          Opis Klasy Geralt \n \n• 110 HP \n• Posiada znak Aard który odpycha i atakuje wrogów obszarowo, zadaje małe obrażenia, ma średni zasieg.\nAard ma szanse na wyrzucenie broni.\n• Zasięg: 400 + int * 1.25\n• Obrażenia: 10%% hp + int * 0.25\n• Szansa na wyrzucenie broni [%%]: 20 + int/6.6, max 50\n• Cooldown: 20 sek\n"
+		"en"		"          Class description Geralt \n \n• 110 HP \n• It has the Aard sign that repels and attacks enemies in an area, deals low damage, has a medium range.\nAard has a chance of firing a gun.\n• Range: 400 + int * 1.25\n• Damage: 10%% hp + int * 0.25\n• Chance to throw weapons [%%]: 20 + int/6.6, max 50\n• Arson Time: 3 sec\n• Cooldown: 20 sec\n"
+	}
+	"Vesemir"
+	{
+		"pl"		"          Opis Klasy Vesemir \n \n• 120 HP \n• Posiada znak Yrden który, spowalnia wrogów na średnim dystansie.\n• Zadaje nieuchronne dodatkowe obrażenia spowolnionym wrogom.\n• Dodatkowe obrażenia: 2 + int/10\n• Zasięg: 400 + int * 1.25\n• Spowolnienie [%%]: 10 + int * 0.25, max 60\n• Czas spowolnienia: 3 + int / 50 sek (max 8)\n• Cooldown: 20 sek\n"
+		"en"		"          Class description Vesemir \n \n• 120 HP \n• It has a Yrden sign that slows enemies on a medium range.\n• Deals inevitable additional damage to slowed down enemies.\n• Extra damage: 2 + int/10\n• Range: 400 + int\n•Slowed [%%]: 10 + int * 0.25, max 60\n• Slow down time: 3 + int / 50 sek (max 8)\n• Cooldown: 20 sec\n"
+	}
+	"Eskel"
+	{
+		"pl"		"          Opis Klasy Eskel \n \n• 100 HP \n• Posiada znak Queen który daje magiczna tarcze pochlaniajaca obrażenia.\nKiedy tarcza zostaje zniszczona odrzuca wrogów na małym dystansie i wybucha zadajac małe obrazenia.\n• Moc tarczy (HP): 20 + int\n• Obrażenia od wybuchu: 5%% hp + int * 0.15\n• Zasieg wybuchu: 200 + int\n• Cooldown: 20sek\n"
+		"en"		"          Class description Eskel \n \n• 100 HP \n• It has a Queen sign that gives a magic shield that absorbs damage.\nWhen the shield is destroyed, it knocks back enemies at a short distance and explodes, inflicting little damage.\n• Shield power (HP): 20 + int\n• Explosion damage: 5%% hp + int * 0.15\n• Explosion Range: 200 + int\n• Cooldown: 20 sec\n"
+	}
+	"Leto"
+	{
+		"pl"		"          Opis Klasy Leto \n \n• 115 HP \n• Posiada znak Aksji zwiekszający szanse oraz obrażenia od trafień krytycznych.\n• Aksji jest aktywne cały czas.\n• Szansa na krytyczne trafienie [%%]: 10 + int/25, max 20\n• Krytyczne obrażenia [%%]: 20 + int/2 , max 200\n"
+		"en"		"          Class description Leto \n \n• 115 HP \n• Has an Aksji sign for increased chance and critical damage damage.\n• Aksji is active all the time.\n• Chance of critical hit [%%]: 10 + int/25, max 20\n• Critical Injuries [%%]: 20 + int/2 , max 200\n"
+	}
+	"Ciri"
+	{
+		"pl"		"          Opis Klasy Ciri(klasa jeszcze nie skonczona) \n \n• 125 HP \n• Posiada teleport aby uzyc wybierz noz i PPM.\n• Zasięg teleportu: 600 + int * 2\n• Klasa VIP\n"
+		"en"		"          Class description Ciri(class not yet finished) \n \n• 125 HP \n• Has a teleport to use select knife and RMB.\n• Teleport range: 600 + int * 2\n• VIP class"
+	}
+	"Yennefer"
+	{
+		"pl"		"          Opis Klasy Yennefer \n \n• 90 HP \n• Posiada czar klątwy który atakuje najblizszego wroga w zasiegu.\n• Obrażenia: 20%% hp + int.\n• Zasięg: 600 + int * 2\n"
+		"en"		"          Class description Yennefer \n \n• 90 HP \n• Has a spell that attacks the closest enemy in range.\n• Damage: 20%% hp + int.\n• Range: 600 + int * 2\n"
+	}
+	"Triss"
+	{
+		"pl"		"          Opis Klasy Triss \n \n• 105 HP \n• Posiada czar kula ognia.\n• Kula po zderzeniu wybucha w obszarze 150 zadajac obrazenia.\n• Obrażenia: 15%% hp + int/2 \n"
+		"en"		"          Class description Triss \n \n• 105 HP \n• Has a fireball spell.\n• The ball explodes in area 150 after collision, causing damage.\n• Damage: 15%% hp + int/2 \n"
+	}
+	"Keira"
+	{
+		"pl"		"          Opis Klasy Keira \n \n• 110 HP \n• Kiedy stoi bez ruchu i trzyma nóż jest niewidzialna.\n• Dostaje decoy na poczatku rundy.\n• Decoy ma model gracza.\n• Ilosc decoy na runde: 1 + int/50 \n• Niewidzialnosc [%%]: 50 - int/5, max 90\n"
+		"en"		"          Class description Keira \n \n• 110 HP \n• When he stands still and holds the knife, he is invisible.\n• He gets decoy at the beginning of the round.\n• Decoy has a player model.\n• Number of decoys per round: 1 + int/50\n• Invisibility [%%]: 50 - int/5, max 90\n"
+	}
+	"Felippa"
+	{
+		"pl"		"          Opis Klasy Felippa \n \n• 100 HP \n• Może wskrzeszac sojuszników przyrzymując E.\n• Co 5 sek leczy siebie albo sojuszników w zależnosci od opcji.\n• Opcje można zmienić używając skilla(useskill).\n• Leczenie: 5 + int/10 \n"
+		"en"		"          Class description Felippa \n \n• 100 HP \n• Can resurrect allies by holding E.\n• Every 5 seconds heals yourself or allies depending on your options.\n• Options can be changed using the skill(useskill).\n• Treatment: 5 + int/10\n"
+	}
+	"Fringilla"
+	{
+		"pl"		"          Opis Klasy Fringilla \n \n• 110 HP \n• Zamienia najblizszego gracza w kurczaka na 3sek\n• Przejmuje moce postaci na 10 + int/15 sek.\n• Pozyskane moce sa silniejsze i zależą od int.\n• Klasa VIP\n"
+		"en"		"          Class description Fringilla \n \n• 110 HP \n• Turns the next player into a chicken for 3 seconds.\n• Takes over the character's powers 10 + int/15 sec.\n• Acquired powers are stronger and depend on int.\n• VIP Class\n"
+	}
+	"Ge'els"
+	{
+		"pl"		"          Opis Klasy Ge'els \n \n• 100 HP \n• Po zabiciu wroga ma szanse na regeneracje megazynka oraz armora.\n• Szansa na regeneracje magazynku[%%]: 25 + int\n• Armor: 125\n"
+		"en"		"          Class description Ge'els \n \n• 100 HP \n• After killing an enemy, he has a chance to regenerate the megazine and armor.\n• Chance for magazine regeneration[%%]: 25 + int\n• Armor: 125\n"
+	}
+	"Imlerith"
+	{
+		"pl"		"          Opis Klasy Imlerith \n \n• 120 HP \n• Bardziej wykorzystuje zrecznosc, ale wraz z jej wzrostem maleja zadawane obrażenia.\n• Posiada umiejętność przyciągania wrogów w obszarze 400.\n• Po przyciągnięciu wroga przez 5sek odbija obrażenia.\n• Maksymalna odporność: 80%%\n• Odbicie obrazen[%%]: 10 + int/10, max 60\n"
+		"en"		"          Class description Imlerith \n \n• 120 HP \n• It uses dexterity more, but its damage decreases as it increases.\n• Has the ability to attract enemies in the area 400.\n• After attracting an enemy for 5 seconds, reflects damage.\n• Maximum resistance: 80%%\n• Reflection of injuries[%%]: 10 + int/10, max 60\n"
+	}
+	"Caranthir"
+	{
+		"pl"		"          Opis Klasy Caranthir \n \n• 100 HP \n• Ma 7%% szans na zamrozenie przy strzale. (Klasa nie skonczona[propozycja mozna zglaszac])\n"
+		"en"		"          Class description Caranthir \n \n• 100 HP \n• Has a 7%% chance of freezing on the shot. (Class not finished [the offer can be submitted])\n"
+	}
+	"Nithral"
+	{
+		"pl"		"          Opis Klasy Nithral \n \n• 100 HP \n• Ma 10%% szans na krwawienie przy strzale.\n• Raz na runde moze uzyc skilla wpadając w furie. Furia daje:\n•• Zmniejszona grawitacje\n•• Widzenie przez sciany krwawiacych wrogów\n•• Ataki krwawiacych wrogow zyskuja wampiryzm\n•• Szansa na krwawienie zwieksza sie do 50%%\n•• Moze atakowac tylko z noza\n• Czas krwawienia: 5sek\n• Czas furii: 30sek\n• Zmniejszona grawitacja[%%]: 10 + zrecznosc/5, max 50\n• Wampiryzm: 5 + int/10, max 25\n"
+		"en"		"          Class description Nithral \n \n• 100 HP \n• Has a 10% chance of bleeding when shot.\n• Once in a round, he can use his skills to get furious. Fury gives:\n•• Gravity reduced\n•• Seeing through the walls of bleeding enemies\n•• Attacks of bleeding enemies gain vampirism\n•• The chance of bleeding increases to 50%%\n•• Can only attack with a knife\n• bleeding time: 5sek\n• Time of fury: 30sec\n• Gravity reduced[%%]: 10 + dexterity/5, max 50\n• vampirism: 5 + int/10, max 25\n"
+	}
+	"Eredin"
+	{
+		"pl"		"          Opis Klasy Eredin \n \n• 110 HP \n• Ma 25%% szans na odrodzenie sie po smierci.\n• Wampiryzm: 5 + int/10, max 25\n• Klasa VIP\n"
+		"en"		"          Class description Eredin \n \n• 110 HP \n• Has a 25% chance of rebirth after death.\n• vampirism: 5 + int/10, max 25\n• VIP class\n"
+	}
+	
+	"Exit"
+	{
+		"pl"		"Wyjście"
+		"en"		"Exit"
+	}
+	"Back"
+	{
+		"pl"		"Cofnij"
+		"en"		"Back"
+	}
+	"LangChange"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Język został zmieniony na {2}%s"
+		"en"		" {1}The language has been changed to {2}%s"
+	}
+	"LangNotAvailable"
+	{
+		"#format"	"{1:c}"
+		"pl"		" {1}Wybrany język nie jest dostępny! Lista dostępnych języków:"
+		"en"		" {1}The selected language is not available! Language list:"
+	}
+	"Stats"
+	{
+		"pl"		"          Opis Statystyk \n \n• Inteligencja:  zwiększa moc skilli(obrazenia, zasieg itp.)\n• Siła: + 2hp co każdy punkt\n• Zręczność: zmniejsza otrzymywanie obrażenia fizyczne (max 50%%). Ma wpływ na wytrzymałośc przedmiotów\n• Zwinność: zwieksza predkość gracza (max 50%%)\n mniejsza otrzymywane obrazenia magiczne (max 70%%)\n"
+		"en"		"          Description of statistics \n \n• Intelligence:  increases the power of skills(damage, range e.t.c.)\n• Strength: every point gives + 2hp\n• Dexterity: reduces physical damage (max 50%%). It affects the endurance of items\n• Agility: increases speed (max 50%%)\n reduces received magic damage (max 70%%)\n"
+	}
+}
