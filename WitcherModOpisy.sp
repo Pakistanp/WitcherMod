@@ -56,7 +56,7 @@ public void OnPluginStart()
 {
 	RegConsoleCmd("klasy", Command_Classes);
 	RegConsoleCmd("classes", Command_Classes);
-	RegConsoleCmd("stats", Command_Stats);
+	RegConsoleCmd("stat", Command_Stats);
 	RegConsoleCmd("staty", Command_Stats);
 	RegConsoleCmd("statystyki", Command_Stats);
 	RegConsoleCmd("porada", Command_Hint);

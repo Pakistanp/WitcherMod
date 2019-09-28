@@ -1011,16 +1011,16 @@ public SetMenuPoints(client)
 	Format(msg, sizeof(msg), "%t", "Agility", playerAgility[client]);
 	menu.AddItem(NULL_STRING, msg);
 
-	Format(msg, sizeof(msg), "%t", "Intelligence");
+	Format(msg, sizeof(msg), "%t", "Intelligence", playerIntelligence[client]);
 	StrCat(msg, sizeof(msg), " + 25");
 	menu.AddItem(NULL_STRING, msg);
-	Format(msg, sizeof(msg), "%t", "Strength");
+	Format(msg, sizeof(msg), "%t", "Strength", playerStrength[client]);
 	StrCat(msg, sizeof(msg), " + 25");
 	menu.AddItem(NULL_STRING, msg);
-	Format(msg, sizeof(msg), "%t", "Dexterity");
+	Format(msg, sizeof(msg), "%t", "Dexterity", playerDexterity[client]);
 	StrCat(msg, sizeof(msg), " + 25");
 	menu.AddItem(NULL_STRING, msg);
-	Format(msg, sizeof(msg), "%t", "Agility");
+	Format(msg, sizeof(msg), "%t", "Agility", playerAgility[client]);
 	StrCat(msg, sizeof(msg), " + 25");
 	menu.AddItem(NULL_STRING, msg);
 	menu.ExitButton = false;
