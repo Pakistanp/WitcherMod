@@ -22,24 +22,27 @@ new const String:Class[17][] ={
 "Eredin"
 };
 
-new const String:Hints[14][]={
-" \x05Chcesz więcej porad? Wpisz \x03/porada.",
-" \x05Aby przeczytać opisy klas wpisz \x03/klasy.",
-" \x05Informacje na temat statystyk znajdziesz pod komedą \x03/staty.",
-" \x05Aby zobaczyć obecnie rozdane statystyki wpisz \x03/postac.",
-" \x05Czy wiesz, że co każde 5 minut spędzone na serwerze dostajesz dodatkowego expa? Wpisz \x03/time.",
-" \x05Czy wiesz, że im więcej graczy na serwerze tym większy jest exp?",
-" \x05Serie zabójstw dają dodatkowe punkty doświadczenia!",
-" \x05Ilość doświadczenia jakie dostajesz zależy również od średniego poziomu na serwerze!",
-" \x05Dostajesz dodatkowe doświadczenie za granie unikalną klasa (jedna osoba +30%, dwie +10%).",
-" \x05Aby zbindowac skilla pod klawisz wpisz w konsoli \x03bind <klawisz> \"useskill\".",
-" \x05Do wyrzucenia itemu użyj komendy \x03/dropi.",
-" \x05Znalazłeś buga albo masz ciekawe pomysły? Zgłoś to! Możesz dostać puknty które, mozesz wymienić na \x03vipa \x05lub \x03expa!",
-" \x05Wejdź na forum \x03 witchermod.gameclan.pl/forum",
-" \x05Aby sprawdzić działanie itemu wpisz \x03/item."
+new const String:Hints[15][]={
+"Hint0",
+"Hint1",
+"Hint2",
+"Hint3",
+"Hint4",
+"Hint5",
+"Hint6",
+"Hint7",
+"Hint8",
+"Hint9",
+"Hint10",
+"Hint11",
+"Hint12",
+"Hint13",
+"Hint14"
 };
 
 new Handle:ClientInSeverTimer[MAXPLAYERS+1] = INVALID_HANDLE;
+
+bool g_bMessagesShown[MAXPLAYERS + 1];
 
 public Plugin myinfo = {
 	name = "WitcherModOpisy",
@@ -52,22 +55,77 @@ public Plugin myinfo = {
 public void OnPluginStart()
 {
 	RegConsoleCmd("klasy", Command_Classes);
+	RegConsoleCmd("classes", Command_Classes);
 	RegConsoleCmd("stats", Command_Stats);
 	RegConsoleCmd("staty", Command_Stats);
 	RegConsoleCmd("statystyki", Command_Stats);
 	RegConsoleCmd("porada", Command_Hint);
+	RegConsoleCmd("hint", Command_Hint);
+	RegConsoleCmd("sm_language", Command_Language);
+	RegConsoleCmd("sm_lang", Command_Language);
+	RegConsoleCmd("sm_jezyk", Command_Language);
+	
+	HookEvent("player_spawn", Event_OnPlayerSpawn);
+	
+	LoadTranslations("witchermoddesc.phrases");
 }
 
 public void OnClientPutInServer(int client)
 {
 	if (IsClientInGame(client) && !IsFakeClient(client)) 
+	{
+		if (GetClientLanguage(client) != GetLanguageByCode("pl"))
+			SetClientLanguage(client, GetLanguageByCode("en"));
 		ClientInSeverTimer[client] = (CreateTimer(300.0, HintTimer, client, TIMER_REPEAT));
+	}
 }
 
 public OnClientDisconnect(client)
 {
 	if (IsClientInGame(client) && !IsFakeClient(client)) 
 		CloseHandle(ClientInSeverTimer[client]);
+		
+	g_bMessagesShown[client] = false;
+}
+
+public void OnMapStart()
+{
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		g_bMessagesShown[i] = false;
+	}
+}
+
+public void Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	
+	if (client == 0 || IsFakeClient(client))
+	{
+		return;
+	}
+	
+	CreateTimer(0.2, Timer_DelaySpawn, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action Timer_DelaySpawn(Handle timer, any data)
+{
+	int client = GetClientOfUserId(data);
+	
+	if (client == 0 || !IsPlayerAlive(client) || g_bMessagesShown[client])
+	{
+		return Plugin_Continue;
+	}
+
+	new String:sWebsiteLink[] = "http://witchermod.gameclan.pl/forum/";
+
+	PrintToChat(client, "%T", "Welcome", client, 0x07, 0x01, 0x06, client);
+	PrintToChat(client, "%T", "JoinToCommunity", client, 0x07, 0x01, 0x06, sWebsiteLink);
+	PrintToChat(client, "%T", "ToChooseClass", client, 0x07, 0x01, 0x06);
+	PrintToChat(client, "%T", "ToChangeLang", client, 0x07, 0x01, 0x06, 0x07);
+	g_bMessagesShown[client] = true;
+	
+	return Plugin_Continue;
 }
 
 public Action Command_Classes(int client, int args)
@@ -99,97 +157,97 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 				case 0:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Lambert \n \n• 100 HP \n• Posiada znak Igni który atakuje obszarowo zadaje duże obrażenia, ale ma mały zasieg.\nIgni ma szanse na podpalenie wroga.\n• Zasięg: 300 + int\n• Obrażenia: 15%% hp + int * 0.5\n• Szansa na podpalenie [%%]: 20 + int/6.6, max 50\n• Czas podpalenia: 3 sek\n• Cooldown: 20 sek\n");
+					Format(buffer, sizeof(buffer), "%t", "Lambert");
 					PanelInfoClass(client, buffer);
 				}	
 				case 1:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Geralt \n \n• 110 HP \n• Posiada znak Aard który odpycha i atakuje wrogów obszarowo, zadaje małe obrażenia, ma średni zasieg.\nAard ma szanse na wyrzucenie broni.\n• Zasięg: 400 + int * 1.25\n• Obrażenia: 10%% hp + int * 0.25\n• Szansa na wyrzucenie broni [%]: 20 + int/6.6, max 50\n• Cooldown: 20 sek\n");
+					Format(buffer, sizeof(buffer), "%t", "Geralt");
 					PanelInfoClass(client, buffer);
 				}
 				case 2:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Vesemir \n \n• 120 HP \n• Posiada znak Yrden który, spowalnia wrogów na średnim dystansie.\n• Zadaje nieuchronne dodatkowe obrażenia spowolnionym wrogom.\n• Dodatkowe obrażenia: 2 + int/10\n• Zasięg: 400 + int * 1.25\n• Spowolnienie [%%]: 10 + int * 0.25, max 60\n• Czas spowolnienia: 3 + int / 50 sek (max 8)\n• Cooldown: 20 sek\n");
+					Format(buffer, sizeof(buffer), "%t", "Vesemir");
 					PanelInfoClass(client, buffer);
 				}
 				case 3:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Eskel \n \n• 100 HP \n• Posiada znak Queen który daje magiczna tarcze pochlaniajaca obrażenia.\nKiedy tarcza zostaje zniszczona odrzuca wrogów na małym dystansie i wybucha zadajac małe obrazenia.\n• Moc tarczy (HP): 20 + int\n• Obrażenia od wybuchu: 5%% hp + int * 0.15\n• Zasieg wybuchu: 200 + int\n• Cooldown: 20sek\n");
+					Format(buffer, sizeof(buffer), "%t", "Eskel");
 					PanelInfoClass(client, buffer);
 				}
 				case 4:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Leto \n \n• 115 HP \n• Posiada znak Aksji zwiekszający szanse oraz obrażenia od trafień krytycznych.\n• Aksji jest aktywne cały czas.\n• Szansa na krytyczne trafienie [%%]: 10 + int/25, max 20\n• Krytyczne obrażenia [%%]: 20 + int/2 , max 200\n");
+					Format(buffer, sizeof(buffer), "%t", "Leto");
 					PanelInfoClass(client, buffer);
 				}
 				case 5:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Ciri(klasa jeszcze nie skonczona) \n \n• 125 HP \n• Posiada teleport aby uzyc wybierz noz i PPM.\n• Zasięg teleportu: 600 + int * 2\n• Klasa VIP\n");
+					Format(buffer, sizeof(buffer), "%t", "Ciri");
 					PanelInfoClass(client, buffer);
 				}
 				case 6:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Yennefer \n \n• 90 HP \n• Posiada czar klatwy ktory atakuje najblizszego wroga w zasiegu.\n• Obrażenia: 20%% hp + int.\n• Zasięg: 600 + int * 2\n");
+					Format(buffer, sizeof(buffer), "%t", "Yennefer");
 					PanelInfoClass(client, buffer);
 				}
 				case 7:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Triss \n \n• 105 HP \n• Posiada czar kula ognia.\n• Kula po zderzeniu wybucha w obszarze 150 zadajac obrazenia.\n• Obrażenia: 15%% hp + int/2 \n");
+					Format(buffer, sizeof(buffer), "%t", "Triss");
 					PanelInfoClass(client, buffer);
 				}
 				case 8:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Keira \n \n• 110 HP \n• Kiedy stoi bez ruchu i trzyma nóż jest niewidzialna.\n• Dostaje decoy na poczatku rundy.\n• Decoy ma model gracza.\n• Ilosc decoy na runde: 1 + int/50 \n• Niewidzialnosc [%%]: 50 - int/5, max 90\n");
+					Format(buffer, sizeof(buffer), "%t", "Keira");
 					PanelInfoClass(client, buffer);
 				}
 				case 9:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Felippa \n \n• 100 HP \n• Może wskrzeszac sojuszników przyrzymując E.\n• Co 5 sek leczy siebie albo sojuszników w zależnosci od opcji.\n• Opcje można zmienić używając skilla(useskill).\n• Leczenie: 5 + int/10 \n");
+					Format(buffer, sizeof(buffer), "%t", "Felippa");
 					PanelInfoClass(client, buffer);
 				}
 				case 10:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Fringilla \n \n• 110 HP \n• Zamienia najblizszego gracza w kurczaka na 3sek\n• Przejmuje moce postaci na 10 + int/15 sek.\n• Pozyskane moce sa silniejsze i zależą od int.\n• Klasa VIP\n");
+					Format(buffer, sizeof(buffer), "%t", "Fringilla");
 					PanelInfoClass(client, buffer);
 				}
 				case 11:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Ge'els \n \n• 100 HP \n• Po zabiciu wroga ma szanse na regeneracje megazynka oraz armora.\n• Szansa na regeneracje magazynku[%%]: 25 + int\n• Armor: 125\n");
+					Format(buffer, sizeof(buffer), "%t", "Ge'els");
 					PanelInfoClass(client, buffer);
 				}
 				case 12:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Imlerith \n \n• 120 HP \n• Bardziej wykorzystuje zrecznosc, ale wraz z jej wzrostem maleja zadawane obrażenia.\n• Posiada umiejętność przyciągania wrogów w obszarze 400.\n• Po przyciągnięciu wroga przez 5sek odbija obrażenia.\n• Maksymalna odporność: 80%%\n• Odbicie obrazen[%%]: 10 + int/10, max 60\n");
+					Format(buffer, sizeof(buffer), "%t", "Imlerith");
 					PanelInfoClass(client, buffer);
 				}
 				case 13:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Caranthir \n \n• 100 HP \n• Ma 7%% szans na zamrozenie przy strzale. (Klasa nie skonczona[propozycja mozna zglaszac])\n");
+					Format(buffer, sizeof(buffer), "%t", "Caranthir");
 					PanelInfoClass(client, buffer);
 				}
 				case 14:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Nithral \n \n• 100 HP \n• Ma 10%% szans na krwawienie przy strzale.\n• Raz na runde moze uzyc skilla wpadając w furie. Furia daje:\n•• Zmniejszona grawitacje\n•• Widzenie przez sciany krwawiacych wrogów\n•• Ataki krwawiacych wrogow zyskuja wampiryzm\n•• Szansa na krwawienie zwieksza sie do 50%%\n•• Moze atakowac tylko z noza\n• Czas krwawienia: 5sek\n• Czas furii: 30sek\n• Zmniejszona grawitacja[%%]: 10 + zrecznosc/5, max 50\n• Wampiryzm: 5 + int/10, max 25\n");
+					Format(buffer, sizeof(buffer), "%t", "Nithral");
 					PanelInfoClass(client, buffer);
 				}
 				case 15:
 				{
 					char buffer[512];
-					Format(buffer, sizeof(buffer), "          Opis Klasy Eredin \n \n• 110 HP \n• Ma 25%% szans na odrodzenie sie po smierci.\n• Wampir.\n• Wampiryzm: 5 + int/10, max 25\n• Klasa VIP\n");
+					Format(buffer, sizeof(buffer), "%t", "Eredin");
 					PanelInfoClass(client, buffer);
 				}
 			}
@@ -202,10 +260,14 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 
 public Action PanelInfoClass(client, char msg[512])
 {
+	char buffer[10];
+	Format(buffer, sizeof(buffer), "%t", "Back");
+	
 	Panel panels = new Panel();
 	panels.SetTitle(msg);
-	panels.DrawItem("Cofnij");
-	panels.DrawItem("Zamknij");
+	panels.DrawItem(buffer);
+	Format(buffer, sizeof(buffer), "%t", "Exit");
+	panels.DrawItem(buffer);
  
 	panels.Send(client, BlankHelp, 30);
 	delete panels;
@@ -224,18 +286,37 @@ public int BlankHelp(Menu menu, MenuAction action, int param1, int param2)
 public Action Command_Stats(int client, int args)
 {	
 	char buffer[512];
-	Format(buffer, sizeof(buffer), "          Opis Statystyk \n \n• Inteligencja:  zwiększa moc skilli(obrazenia, zasieg itp.)\n• Siła: + 2hp co każdy punkt\n• Zręczność: zmniejsza otrzymywanie obrażenia fizyczne (max 50%). Ma wpływ na wytrzymałośc przedmiotów\n• Zwinnosc: zwieksza predkość gracza (max 50%)\n mniejsza otrzymywane obrazenia magiczne (max 70%)\n");
+	Format(buffer, sizeof(buffer), "%t", "Stats");
 	PanelInfoClass(client, buffer);
 	return Plugin_Handled;
 }
 
 public Action Command_Hint(int client, int args)
 {	
-	PrintToChat(client, "%s",Hints[GetRandomInt(1,13)]);
+	PrintToChat(client, "%T", Hints[GetRandomInt(1,14)], client, 0x05, 0x06);
 	return Plugin_Handled;
 }
 public Action:HintTimer(Handle:timer, any:client)
 {
 	Command_Hint(client, 1);
-	PrintToChat(client, "%s",Hints[0]);
+	PrintToChat(client, "%T", Hints[0], client, 0x05, 0x06);
+}
+
+public Action Command_Language(int client, int args)
+{	
+	char full[256];
+ 
+	GetCmdArgString(full, sizeof(full));
+	if (StrEqual(full, "pl") || StrEqual(full, "en"))
+	{
+		SetClientLanguage(client, GetLanguageByCode(full));
+		PrintToChat(client, "%T", "LangChange", client, 0x05, 0x06, full);
+	}
+	else
+	{
+		PrintToChat(client, "%T", "LangNotAvailable", client, 0x05, 0x06, full);
+		PrintToChat(client, " \x06en, pl");
+	}
+			
+	return Plugin_Handled;
 }

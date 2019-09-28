@@ -1,3 +1,4 @@
+#pragma semicolon 1
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks> 
@@ -129,7 +130,7 @@ new const LevelXP[] = {
 	37672616, 37750375, 37828201, 37906111, 37984088, 38062124, 38140273, 38218506, 38296823, 38375214, 
 	38453636, 38532118, 38610614, 38689180, 38767917, 38846688, 38925547, 39004415, 39083465, 39162534, 
 	39241760, 39320997, 39400346, 39479842, 39559400, 39639019, 39718757, 39798545, 39878421, 39958397
-}
+};
 
 new const String:Class[17][] ={
 "Brak",
@@ -149,7 +150,7 @@ new const String:Class[17][] ={
 "Caranthir",
 "Nithral",
 "Eredin(Vip)"
-}
+};
 new const ClassHP[17] = {
 100,
 100,
@@ -168,7 +169,7 @@ new const ClassHP[17] = {
 100,
 100,
 110
-}
+};
 new playerVip[MAXPLAYERS+1];
 new playerExp[MAXPLAYERS+1] = {1, ...};
 new playerLevel[MAXPLAYERS+1] = {1, ...};
@@ -260,7 +261,7 @@ IGNICOLOR,
 AARDCOLOR,
 YRDENCOLOR,
 QUEENCOLOR
-}
+};
 new avgLevel;
 
 bool isUsingESP[MAXPLAYERS+1];
@@ -289,6 +290,8 @@ new Handle:ClientInSeverTimer[MAXPLAYERS+1] = INVALID_HANDLE;
 //new Handle:handleCooldownTimer[MAXPLAYERS+1] = INVALID_HANDLE;
 Handle g_hReviving[MAXPLAYERS + 1];
 Handle healHandle[MAXPLAYERS + 1];
+
+// GRENADE //
 
 // SQL //
 
@@ -396,13 +399,14 @@ public void OnPluginStart()
 	RegConsoleCmd("czas", Command_getTime);
 	RegConsoleCmd("time", Command_getTime);
 	RegConsoleCmd("postac", Command_Character);
+	RegConsoleCmd("chrt", Command_Character);
 	RegConsoleCmd("dropi", Command_DropItem);
 	RegConsoleCmd("item", Command_ItemInfo);
 	
 	RegConsoleCmd("useskill", Command_UseSkill);
 
 	HookEvent("player_death", Event_PlayerDeath);
-	// HookEvent("player_death", Event_PlayerDeathPre, EventHookMode_Pre);
+	HookEvent("player_death", Event_OnPlayerDeath, EventHookMode_Pre);
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_team", Event_PlayerChangeTeam);
 	HookEvent("round_start", OnRoundStart, EventHookMode_PostNoCopy); 
@@ -412,10 +416,10 @@ public void OnPluginStart()
 	HookEvent("decoy_detonate", Event_DecoyDetonate );
 	//HookEvent( "player_use", Event_PlayerUse );
 	HookEvent("item_pickup", Event_ItemPickup);
+	//HookEvent("smokegrenade_detonate", Event_SmokeDetonate, EventHookMode_Pre);
 	
 	HookEvent("player_hurt", Event_PlayerHurt, EventHookMode_Post);
 	DamageEventName = "dmg_health";
-	
 	
 	// for(new iChannel = 0; iChannel < MAXPLAYERS+1; iChannel++)
 	// {
@@ -424,6 +428,8 @@ public void OnPluginStart()
 			SetFailState("HUD synchronisation is not supported by this mod");
 	// }
 	SetHudTextParams(0.01, -0.05, 604800.0, 204, 204, 204, 200, 0);
+	
+	LoadTranslations("witchermod.phrases");
 }
 
 public void OnMapStart()
@@ -491,8 +497,8 @@ public Action:Event_DecoyStarted(Handle:event, const String:name[], bool:dontBro
 	if((playerClass[client] == 9 || playerBonusInvisible[client] > 0) && decoyEntity[client] == -1)
 	{
 		//decoyEntity[client]
-		decoyEntity[client] = FindEntityByClassname(decoyEntity[client], "decoy_projectile")
-		new owner = GetEntPropEnt(decoyEntity[client], Prop_Send, "m_hThrower")
+		decoyEntity[client] = FindEntityByClassname(decoyEntity[client], "decoy_projectile");
+		new owner = GetEntPropEnt(decoyEntity[client], Prop_Send, "m_hThrower");
 		if (IsValidEntity(decoyEntity[client]) && owner == client)
 		{
 			new String:model[64];
@@ -500,7 +506,7 @@ public Action:Event_DecoyStarted(Handle:event, const String:name[], bool:dontBro
 			GetClientModel(client, model, sizeof(model));
 			PrecacheModel(model);
 			SetEntityModel(decoyEntity[client], model);
-			GetClientAbsAngles(client, angles)
+			GetClientAbsAngles(client, angles);
 			// angles[0] = 0.0;
 			// angles[1] = 0.0;
 			// angles[2] = 0.0;
@@ -541,7 +547,9 @@ public OnRoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 			skillWasUsed[i] = false;
 			playerCooldown[i] = 0.0;
 			revivingTarget[i] = -1;
-			skillHud[i] = "Gotowy";
+			char buffer[20];
+			Format(buffer, sizeof(buffer), "%t", "Ready");
+			skillHud[i] = buffer;
 			//CheckStats(i);
 			SetHud(i);
 		}
@@ -549,7 +557,7 @@ public OnRoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 	CreateTimer(5.0, ResetPlayerLastRoundExpTimer);
 	
 	avgLevel = RoundToFloor(float(sumLvl / GetRealClientCount()));
-	PrintToChatAll(" \x05Średni poziom na serwerze to \x03%d\x05.", avgLevel);
+	PrintToChatAll("%t", "AvgLvl", 0x03, 0x06, avgLevel);
 }  
 
 void SQL_Start()
@@ -810,7 +818,7 @@ public Action:OnShowDamage(Handle:timer, any:client)
 		return;
 	}
 	
-	PrintHintText(client, "Obrażenia: %d", damageShow[client]);
+	PrintHintText(client, "%T", "Damage", client, damageShow[client]);
 
 	damageShow[client] = 0;
 }
@@ -858,7 +866,6 @@ public Action Command_Exp(int client, int args)
 	{
 		PrintToChat(client," \x05%s \t \x03%i", playerKillNamesLastRound[client][i], playerKillExpLastRound[client][i]);
 	}
-	PrintToChat(client,"To jeszcze nic nie robi :(");
 	return Plugin_Handled;
 }
 
@@ -866,11 +873,11 @@ public Action Command_Character(int client, int args)
 {	
 	if(playerClass[client] > 0)
 	{
-		PrintToChat(client," \x05Twoje statystyki:");
-		PrintToChat(client," \x05Inteligencja: \x03%d", playerIntelligence[client]);
-		PrintToChat(client," \x05Siła: \x03%d \x05co daje Ci \x03%d \x05wiecej HP.", playerStrength[client], playerHP[client] - ClassHP[playerClass[client]]);
-		PrintToChat(client," \x05Zręczność: \x03%d \x05co daje Ci \x03%.2f% \x05redukcji fizycznych ataków.", playerDexterity[client], playerDamageReduction[client]);
-		PrintToChat(client," \x05Zwinność: \x03%d \x05co daje Ci \x03%.2f% \x05redukcji magicznych ataków oraz \x03%.2f% \x05do szybkości.", playerAgility[client], playerMagicDamageReduction[client], playerSpeed[client]);
+		PrintToChat(client, "%T", "YoursStats", client, 0x05);
+		PrintToChat(client, "%T", "ChrtIntelligence", client, 0x05, 0x06, playerIntelligence[client]);
+		PrintToChat(client, "%T", "ChrtStrength", client, 0x05, 0x06, playerStrength[client], 0x05, 0x06, playerHP[client] - ClassHP[playerClass[client]], 0x05);
+		PrintToChat(client, "%T", "ChrtDexterity", client, 0x05, 0x06, playerDexterity[client], 0x05, 0x06, playerDamageReduction[client], 0x05);
+		PrintToChat(client, "%T", "ChrtAgility", client, 0x05, 0x06, playerAgility[client], 0x05, 0x06, playerMagicDamageReduction[client], 0x05, 0x06, playerSpeed[client], 0x05);
 	}
 	
 	return Plugin_Handled;
@@ -881,11 +888,11 @@ public Action Command_DropItem(int client, int args)
 	if(playerItem[client] > 0)
 	{
 		DropItem(client);
-		PrintToChat(client, " Wyrzucono przedmiot!");
+		PrintToChat(client, "%T", "DroppedItem", client);
 	}
 	else
 	{
-		PrintToChat(client, " Nie posiadasz przedmiotu!");
+		PrintToChat(client, "%T", "NotHaveItem", client);
 	}
 	return Plugin_Handled;
 }
@@ -898,7 +905,7 @@ public Action Command_ItemInfo(int client, int args)
 	}
 	else
 	{
-		PrintToChat(client, " Nie posiadasz przedmiotu!");
+		PrintToChat(client, "%T", "NotHaveItem", client);
 	}
 	return Plugin_Handled;
 }
@@ -922,7 +929,7 @@ public Action CreateMenuClass(client)
 
 public Action:Command_getTime(client, args)
 {
-    PrintToChat(client, " \x05Grasz na serwerze przez \x03%d\x05 minut co daje Ci \x03%d%%\x05 wiecej expa!", playerMinutes[client], RoundToFloor(playerMinutes[client] / 10.0) * 5);
+	PrintToChat(client, "%T", "TimeExtraExp", client, 0x05, 0x06, playerMinutes[client], 0x05, 0x06, RoundToFloor(playerMinutes[client] / 10.0) * 5, 0x05);
     return Plugin_Handled;
 }
 
@@ -993,24 +1000,28 @@ public SetMenuPoints(client)
 {
 	Menu menu = new Menu(MenuPoints_Handler);
 	decl String:msg[100];
-	Format(msg, sizeof(msg), "Wybierz atrybut - dostepne punkty %d \n \n", playerPoints[client]);
+	Format(msg, sizeof(msg), "%t", "ChoiceAtr", playerPoints[client]);
 	menu.SetTitle(msg);
-	Format(msg, sizeof(msg), "Inteligencja [%d]", playerIntelligence[client]);
+	Format(msg, sizeof(msg), "%t", "Intelligence", playerIntelligence[client]);
 	menu.AddItem(NULL_STRING, msg);
-	Format(msg, sizeof(msg), "Sila [%d]", playerStrength[client]);
+	Format(msg, sizeof(msg), "%t", "Strength", playerStrength[client]);
 	menu.AddItem(NULL_STRING, msg);
-	Format(msg, sizeof(msg), "Zrecznosc [%d]", playerDexterity[client]);
+	Format(msg, sizeof(msg), "%t", "Dexterity", playerDexterity[client]);
 	menu.AddItem(NULL_STRING, msg);
-	Format(msg, sizeof(msg), "Zwinnosc [%d]", playerAgility[client]);
+	Format(msg, sizeof(msg), "%t", "Agility", playerAgility[client]);
 	menu.AddItem(NULL_STRING, msg);
 
-	Format(msg, sizeof(msg), "Inteligencja + 25");
+	Format(msg, sizeof(msg), "%t", "Intelligence");
+	StrCat(msg, sizeof(msg), " + 25");
 	menu.AddItem(NULL_STRING, msg);
-	Format(msg, sizeof(msg), "Sila + 25");
+	Format(msg, sizeof(msg), "%t", "Strength");
+	StrCat(msg, sizeof(msg), " + 25");
 	menu.AddItem(NULL_STRING, msg);
-	Format(msg, sizeof(msg), "Zrecznosc + 25");
+	Format(msg, sizeof(msg), "%t", "Dexterity");
+	StrCat(msg, sizeof(msg), " + 25");
 	menu.AddItem(NULL_STRING, msg);
-	Format(msg, sizeof(msg), "Zwinnosc + 25");
+	Format(msg, sizeof(msg), "%t", "Agility");
+	StrCat(msg, sizeof(msg), " + 25");
 	menu.AddItem(NULL_STRING, msg);
 	menu.ExitButton = false;
 	//menu.ExitBackButton = false;
@@ -1605,6 +1616,17 @@ public Action:Event_PlayerDeath(Handle:hEvent, const String:strName[], bool:bBro
 	SetHud(attacker);
 }
 
+public Action:Event_OnPlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	decl String:sWeapon[64];
+	GetEventString(event, "weapon", sWeapon, sizeof(sWeapon));
+	if(StrEqual(sWeapon, "env_particlesmokegrenade"))
+	{
+		SetEventString(event, "weapon", "flashbang");
+	}
+	return Plugin_Continue;
+}
+
 public Action:Timer_ServerHud(Handle:hTimer, Handle:hDataPack)
 {
 	ResetPack(hDataPack);
@@ -1744,7 +1766,9 @@ public Action:CooldownTimer(Handle:timer, any:client)
 	{
 		playerCooldown[client] = 0.0;
 		skillUsed[client] = false;
-		skillHud[client] = "Gotowy";
+		char buffer[20];
+		Format(buffer, sizeof(buffer), "%t", "Ready");
+		skillHud[client] = buffer;
 		return Plugin_Stop;
 	}
 		
@@ -1863,7 +1887,7 @@ bool:RespawnPlayer(client)
 	{
 		if(GetRandomInt(1, RoundToFloor(100.0 / (playerBonusChanceToRespawn[client] + playerChanceToRespawn[client]))) == 1)
 		{
-			CreateTimer(0.5, RespawnPlayerTimer, client)
+			CreateTimer(0.5, RespawnPlayerTimer, client);
 			respawn = true;
 		}
 	}
@@ -1907,7 +1931,7 @@ public OnGameFrame()
 
 stock CheckJump(any:client) 												//check player jump
 {
-	new fCurFlags = GetEntityFlags(client)
+	new fCurFlags = GetEntityFlags(client);
 		//fCurButtons	= GetClientButtons(client)
 		
 	if (fLastFlags[client] & FL_ONGROUND) 
@@ -2329,7 +2353,7 @@ void SlowPlayer(victim, attacker)
 	speed = currentSpeed - slow;
 	SetPlayerSpeed(victim, speed);
 	isPlayerSlowed[victim] = true;
-	CreateTimer(CalculateDuration(attacker), SetDefaultSpeedTimer, victim)
+	CreateTimer(CalculateDuration(attacker), SetDefaultSpeedTimer, victim);
 }
 void PushPlayerBack(victim, attacker)
 {
@@ -2612,7 +2636,7 @@ UseRadiusSkill(client)
 			
 				if (((TR_DidHit(trace) /*&& TR_GetEntityIndex(trace) == i*/) || (GetVectorDistance(origin, targetOrigin) <= radius)) && victim != client && IsEnemy(client,victim))
 				{
-					DealMagicDamage(victim, client)
+					DealMagicDamage(victim, client);
 				}
 				
 				CloseHandle(trace);
@@ -2779,7 +2803,7 @@ public CreateExplosion( Float:vec[3], client)
 	
 	// SetEntProp(ent, Prop_Data, "m_iMagnitude", 100); 
 	// SetEntProp(ent, Prop_Data, "m_iRadiusOverride", radius); 
-	DealExplodeDamage(vec, client)
+	DealExplodeDamage(vec, client);
 
 	DispatchSpawn(ent);
 	ActivateEntity(ent);
@@ -2829,7 +2853,7 @@ DealExplodeDamage(Float:origin[3], client)
 			
 				if (((TR_DidHit(trace) && TR_GetEntityIndex(trace) == victim) || (GetVectorDistance(origin, targetOrigin) <= 150)) && victim != client && IsEnemy(client,victim))
 				{
-					DealMagicDamage(victim, client)
+					DealMagicDamage(victim, client);
 				}			
 				CloseHandle(trace);
 			}
@@ -3276,7 +3300,6 @@ stock FreezePlayer(client)
 	new Float:vec[3];
 	GetClientAbsOrigin(client, vec);
 	EmitAmbientSound(SOUND_FREEZE, vec, client);
-	PrintToChatAll("freeze");
 	if(!isPlayerFrozen[client])
 	{
 		SetEntityMoveType(client, MOVETYPE_WALK);
