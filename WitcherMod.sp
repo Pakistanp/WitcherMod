@@ -392,6 +392,8 @@ public void OnPluginStart()
 	// if (g_hActiveWeapon == -1 || g_iPrimaryAmmoType == -1 || g_iAmmo == -1 || g_iClip1 == -1)
 		// SetFailState("Failed to retrieve entity member offsets");
 	
+	RegAdminCmd("sm_giveitem", Command_GiveItem, ADMFLAG_ROOT);
+	
 	RegConsoleCmd("klasa", Command_Class);
 	RegConsoleCmd("class", Command_Class);
 	RegConsoleCmd("reset", Command_Reset);
@@ -1594,7 +1596,7 @@ public Action:Event_PlayerDeath(Handle:hEvent, const String:strName[], bool:bBro
 		playerKillNamesLastRound[attacker][playerKillLastRoundCount[attacker]] = name;
 		
 		if(playerItem[attacker] == 0)
-			GiveItem(attacker);
+			GiveItem(attacker, 0);
 	}
 	
 	if(playerKillsSeries[attacker] < 6 && playerKillsSeries[attacker] != 5)
@@ -2964,10 +2966,13 @@ GiveMagicShield(client)
 	playerMagicHPMax[client] = 20 + playerIntelligence[client] + playerBonusMagicHP[client];
 }
 //ITEMS
-public void GiveItem(client)
+public void GiveItem(client, Gitem)
 {
 	new item;
-	item = GetRandomInt(1,11);
+	if(Gitem == 0)
+		item = GetRandomInt(1,11);
+	else
+		item = Gitem;
 	itemEndurance[client] = GetRandomInt(200 + playerDexterity[client], 400 + playerDexterity[client] * 3);
 	
 	switch(item)
@@ -3932,5 +3937,14 @@ public SQL_OnSaveVip(Handle:hDriver, Handle:hResult, const String:sError[], any:
 		hResult = INVALID_HANDLE;
     }
 } 
+
+public Action Command_GiveItem(int client, int args)
+{
+	char full[256];
+ 
+	GetCmdArgString(full, sizeof(full));
+	GiveItem(client, StringToInt(full));
+	return Plugin_Handled;
+}
 // check
 // https://github.com/Franc1sco/MolotovCockTails/blob/master/molotov.sp
