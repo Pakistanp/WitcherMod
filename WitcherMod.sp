@@ -430,6 +430,7 @@ public void OnPluginStart()
 	SetHudTextParams(0.01, -0.05, 604800.0, 204, 204, 204, 200, 0);
 	
 	LoadTranslations("witchermod.phrases");
+	LoadTranslations("witchermoditems.phrases");
 }
 
 public void OnMapStart()
@@ -532,7 +533,7 @@ public OnRoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 		{
 			sumLvl += playerLevel[i];
 			
-			PrintToChat(i ," \x05W poprzedniej rundzie udało Ci się zdobyć \x03%d\x05 expa! (Więcej pod komenda \x03/exp\x05)", playerExpLastRound[i]);
+			PrintToChat(i , "%T", "LastRoundExp", i, 0x05, 0x06, playerExpLastRound[i], 0x05, 0x06, 0x05);
 			
 			if(playerToSetPoints[i] || CheckAvailablePoints(i))
 			{
@@ -1640,14 +1641,24 @@ public Action:Timer_ServerHud(Handle:hTimer, Handle:hDataPack)
 		return;	
 	
 	decl String:message[220]; 
+	decl String:strClass[10]; 
+	Format(strClass, sizeof(strClass),"%T", "Class", client); 
 	if(playerClass[client] == 4 || playerBonusQueen[client] > 0)
-		Format(message, sizeof(message),"Klasa: %s Tarcza: %d Skill: %s\nLevel: %d EXP: %d/%d", Class[playerClass[client]], playerMagicHP[client], skillHud[client], playerLevel[client], playerExp[client], LevelXP[playerLevel[client]]);
+	{
+		decl String:strShield[10];
+		Format(strShield, sizeof(strShield),"%T", "Shield", client); 
+		Format(message, sizeof(message),"%s%s %s%d Skill: %s\nLevel: %d EXP: %d/%d", strClass, Class[playerClass[client]], strShield, playerMagicHP[client], skillHud[client], playerLevel[client], playerExp[client], LevelXP[playerLevel[client]]);
+	}
 	else if(playerClass[client] == 5 || playerClass[client] == 16)
-		Format(message, sizeof(message), "Klasa: %s \nLevel: %d EXP: %d/%d", Class[playerClass[client]], playerLevel[client], playerExp[client], LevelXP[playerLevel[client]]);
+		Format(message, sizeof(message), "%s%s \nLevel: %d EXP: %d/%d", strClass, Class[playerClass[client]], playerLevel[client], playerExp[client], LevelXP[playerLevel[client]]);
 	else if(playerClass[client] == 10)
-		Format(message, sizeof(message), "Klasa: %s Skill: %s Leczenie: %s\nLevel: %d EXP: %d/%d", Class[playerClass[client]], skillHud[client], hudOption[client], playerLevel[client], playerExp[client], LevelXP[playerLevel[client]]);
+	{
+		decl String:strHeal[10];
+		Format(strHeal, sizeof(strHeal),"%T", "Heal", client); 
+		Format(message, sizeof(message), "%s%s Skill: %s %s%s\nLevel: %d EXP: %d/%d", strClass, Class[playerClass[client]], skillHud[client], strHeal, hudOption[client], playerLevel[client], playerExp[client], LevelXP[playerLevel[client]]);
+	}
 	else
-		Format(message, sizeof(message), "Klasa: %s Skill: %s\nLevel: %d EXP: %d/%d", Class[playerClass[client]], skillHud[client], playerLevel[client], playerExp[client], LevelXP[playerLevel[client]]);
+		Format(message, sizeof(message), "%s%s Skill: %s\nLevel: %d EXP: %d/%d", strClass, Class[playerClass[client]], skillHud[client], playerLevel[client], playerExp[client], LevelXP[playerLevel[client]]);
 	ShowSyncHudText(client, g_hHudSync, message);
 }
 public SetHud(client)
@@ -2527,7 +2538,7 @@ void GainPower(victim, attacker)
 			playerBonusChanceToRespawn[attacker] += 50;
 		}
 	}
-	PrintToChat(attacker, "Otrzymano moc postaci: %s", Class[playerClass[victim]]);
+	PrintToChat(attacker, "%T", "CharPowRec", attacker, Class[playerClass[victim]]);
 }
 public Action Command_UseSkill(int client, int args)
 {	
@@ -2570,12 +2581,16 @@ public Action Command_UseSkill(int client, int args)
 			if(playerHealOption[client] == 1)
 			{
 				playerHealOption[client] = 2;
-				hudOption[client] = "siebie";
+				char buffer[10];
+				Format(buffer, sizeof(buffer), "%T", "HealYourself", client);
+				hudOption[client] = buffer;
 			}
 			else if(playerHealOption[client] == 2)
 			{
 				playerHealOption[client] = 1;
-				hudOption[client] = "innych";
+				char buffer[10];
+				Format(buffer, sizeof(buffer), "%T", "HealOther", client);
+				hudOption[client] = buffer;
 			}
 			
 		}
@@ -2959,99 +2974,111 @@ public void GiveItem(client)
 	{
 		case 1:
 		{
-			playerItemName[client] = "Wiedźmiński miecz srebrny";
+			char buffer[50];
+			Format(buffer, sizeof(buffer), "%T", "Item1", client);
+			playerItemName[client] = buffer;			
 			playerItem[client] = item;
 			new bonus;
 			bonus = GetRandomInt(1,5);	
 			playerBonusAllStats[client] = bonus;
 			
 			BoostStats(client);
-			PrintToChat(client, " Znalazles przedmiot: %s :: Zyskasz +%i do wszystkich statystyk", playerItemName[client], playerBonusAllStats[client]);	
 		}
 		case 2:
 		{
-			playerItemName[client] = "Miecz Hoskulda Rogatego";
+			char buffer[50];
+			Format(buffer, sizeof(buffer), "%T", "Item2", client);
+			playerItemName[client] = buffer;		
+			
 			playerItem[client] = item;
 			playerBonusChanceToCrit[client] = GetRandomInt(5,10);
 			playerBonusCritDamage[client] = float(GetRandomInt(20,40));
-			
-			PrintToChat(client, " Znalazles przedmiot: %s :: Szansa na krytyka +%i%%. Obrażenia od krytyka + %0.f%", playerItemName[client], playerBonusChanceToCrit[client], playerBonusCritDamage[client]);
 		}
 		case 3:
 		{
-			playerItemName[client] = "Drewniany miecz";
+			char buffer[50];
+			Format(buffer, sizeof(buffer), "%T", "Item3", client);
+			playerItemName[client] = buffer;
+			
 			playerItem[client] = item;
 			playerBonusAdditionalDamage[client] = GetRandomInt(1,2);
-			
-			PrintToChat(client, " Znalazles przedmiot: %s :: Zwięszka zadawane obrażenia o %i", playerItemName[client], playerBonusAdditionalDamage[client]);
 		}
 		case 4:
 		{
-			playerItemName[client] = "Koszula";
+			char buffer[50];
+			Format(buffer, sizeof(buffer), "%T", "Item4", client);
+			playerItemName[client] = buffer;
+			
 			playerItem[client] = item;
 			playerBonusReduction[client] = 1;
-			
-			PrintToChat(client, " Znalazles przedmiot: %s :: Redukuje %i punkt obrazen", playerItemName[client], playerBonusReduction[client]);
 		}
 		case 5:
 		{
-			playerItemName[client] = "Buty egzekutora";
+			char buffer[50];
+			Format(buffer, sizeof(buffer), "%T", "Item5", client);
+			playerItemName[client] = buffer;
+			
 			playerItem[client] = item;
 			playerBonusSpeed[client] = GetRandomFloat(100.0, 300.0) / 1000.0;
 			playerBonusReduction[client] = 1;
-			
-			PrintToChat(client, " Znalazles przedmiot: %s :: Redukuje %i punkt obrazen oraz dodaje %0.f% punktów prędkości", playerItemName[client], playerBonusReduction[client], playerBonusSpeed[client] * 1000);
 		}
 		case 6:
 		{
-			playerItemName[client] = "Wyrzut sumienia";
+			char buffer[50];
+			Format(buffer, sizeof(buffer), "%T", "Item6", client);
+			playerItemName[client] = buffer;
+			
 			playerItem[client] = item;
 			playerBonusReduceCooldown[client] = GetRandomFloat(1.0, 5.0);
-			
-			PrintToChat(client, " Znalazles przedmiot: %s :: Zmniejsza czas ładowania skilla o %0.f% sek", playerItemName[client], playerBonusReduceCooldown[client]);
 		}
 		case 7:
 		{
-			playerItemName[client] = "Trofeum z upiora";
+			char buffer[50];
+			Format(buffer, sizeof(buffer), "%T", "Item7", client);
+			playerItemName[client] = buffer;
+			
 			playerItem[client] = item;
 			playerBonusChanceToRespawn[client] = 20;
-			
-			PrintToChat(client, " Znalazles przedmiot: %s :: Masz %i%% szans na odrodzenie sie po śmierci", playerItemName[client], playerBonusChanceToRespawn[client]);
 		}
 		case 8:
 		{
-			playerItemName[client] = "Kovirski kordzik";
+			char buffer[50];
+			Format(buffer, sizeof(buffer), "%T", "Item8", client);
+			playerItemName[client] = buffer;
+			
 			playerItem[client] = item;
 			playerBonusAdditionalDamageKnife[client] = GetRandomInt(10, 30);
-			
-			PrintToChat(client, " Znalazles przedmiot: %s :: Dodatkowe obrażenia do ataków z noża + %i", playerItemName[client], playerBonusAdditionalDamageKnife[client]);
 		}
 		case 9:
 		{
-			playerItemName[client] = "Trofeum z ekimmy";
+			char buffer[50];
+			Format(buffer, sizeof(buffer), "%T", "Item9", client);
+			playerItemName[client] = buffer;
+			
 			playerItem[client] = item;
 			playerBonusVampire[client] = GetRandomInt(1, 3);
-			
-			PrintToChat(client, " Znalazles przedmiot: %s :: +%i do wampirycznych obrazen", playerItemName[client], playerBonusVampire[client]);
 		}
 		case 10:
 		{
-			playerItemName[client] = "Spodnie Yennefer";
+			char buffer[50];
+			Format(buffer, sizeof(buffer), "%T", "Item10", client);
+			playerItemName[client] = buffer;
+			
 			playerItem[client] = item;
 			playerBonusGravity[client] = GetRandomInt(10, 30);
-			
-			PrintToChat(client, " Znalazles przedmiot: %s :: zmniejszona grawitacja o %i%%", playerItemName[client], playerBonusGravity[client]);
 		}
 		case 11:
 		{
-			playerItemName[client] = "Rachmistrz";
+			char buffer[50];
+			Format(buffer, sizeof(buffer), "%T", "Item11", client);
+			playerItemName[client] = buffer;
+			
 			playerItem[client] = item;
 			playerBonusChanceToBleed[client] = GetRandomInt(5, 15);
 			playerBonusBleedDamage[client] = 1;
-			
-			PrintToChat(client, " Znalazles przedmiot: %s :: Masz %i%% szans na wywołanie kwrawienia przy strzale.", playerItemName[client], playerBonusChanceToBleed[client]);
 		}
 	}
+	PrintToChat(client, "%T", "FoundItem", client, playerItemName[client]);	
 	CheckStats(client);
 	SetSpecifyStats(client);
 	SetPlayerSpeed(client, 1.0 + playerSpeed[client]);
@@ -3115,7 +3142,7 @@ public void ItemWear(client, damage)
 			itemEndurance[client] -= damage;
 			if(itemEndurance[client] <= 0)
 			{
-				PrintToChat(client, "Przedmiot zotał zniszczony!");
+				PrintToChat(client, "%T", "ItemDestroyed", client);
 				DropItem(client);
 			}
 		}
@@ -3127,58 +3154,58 @@ public void ItemWear(client, damage)
 public void ItemInfo(client)
 {
 	char buffer[512];
-	Format(buffer, sizeof(buffer), "          Opis Przedmiotu %s \n \n", playerItemName[client]);
+	Format(buffer, sizeof(buffer), "%T", "Item1Desc", client, playerItemName[client]);
 	
 	if(playerBonusAllStats[client] > 0)
 	{
-		Format(buffer, sizeof(buffer), "%s• Do wszystkich statystyk + %i \n", buffer, playerBonusAllStats[client]);
+		Format(buffer, sizeof(buffer), "%T", "AllStats", client, buffer, playerBonusAllStats[client]);
 	}
 	if(playerBonusChanceToCrit[client] > 0)
 	{
-		Format(buffer, sizeof(buffer), "%s• Szansa na krytyka + %i%% \n", buffer, playerBonusChanceToCrit[client]);
+		Format(buffer, sizeof(buffer), "%T", "ChanceOfCritical", client, buffer, playerBonusChanceToCrit[client]);
 	}
 	if(playerBonusCritDamage[client] > 0)
 	{
-		Format(buffer, sizeof(buffer), "%s• Dodatkowe obrazenia od krytyka + %0.f%%% \n", buffer, playerBonusCritDamage[client]);
+		Format(buffer, sizeof(buffer), "%T", "CriticalDamage", client, buffer, playerBonusCritDamage[client]);
 	}
 	if(playerBonusAdditionalDamage[client] > 0)
 	{
-		Format(buffer, sizeof(buffer), "%s• Dodatkowe obrazenia + %i \n", buffer, playerBonusAdditionalDamage[client]);
+		Format(buffer, sizeof(buffer), "%T", "AddDamage", client, buffer, playerBonusAdditionalDamage[client]);
 	}
 	if(playerBonusReduction[client] > 0)
 	{
-		Format(buffer, sizeof(buffer), "%s• Redukcja obrazen + %i \n", buffer, playerBonusReduction[client]);
+		Format(buffer, sizeof(buffer), "%T", "ReducingPhysicalDMG", client, buffer, playerBonusReduction[client]);
 	}
 	if(playerBonusSpeed[client] > 0)
 	{
-		Format(buffer, sizeof(buffer), "%s• Zwieksza predkosc biegania o %0.f% punktow \n", buffer, playerBonusSpeed[client] * 1000);
+		Format(buffer, sizeof(buffer), "%T", "IncreasesSpeed", client, buffer, playerBonusSpeed[client] * 1000);
 	}
 	if(playerBonusReduceCooldown[client] > 0)
 	{
-		Format(buffer, sizeof(buffer), "%s• Zmniejsza czas ładowania skilla o %0.f% sek \n", buffer, playerBonusReduceCooldown[client]);
+		Format(buffer, sizeof(buffer), "%T", "ReducesCooldown", client, buffer, playerBonusReduceCooldown[client]);
 	}
 	if(playerBonusChanceToRespawn[client] > 0)
 	{
-		Format(buffer, sizeof(buffer), "%s• Masz %i%% szans na odrodzenie sie po śmierci \n", buffer, playerBonusChanceToRespawn[client]);
+		Format(buffer, sizeof(buffer), "%T", "ChanceOfRebirth", client, buffer, playerBonusChanceToRespawn[client]);
 	}
 	if(playerBonusAdditionalDamageKnife[client] > 0)
 	{
-		Format(buffer, sizeof(buffer), "%s• Dodatkowe obrażenia do ataków z noża + %i \n", buffer, playerBonusAdditionalDamageKnife[client]);
+		Format(buffer, sizeof(buffer), "%T", "KnifeDMG", client, buffer, playerBonusAdditionalDamageKnife[client]);
 	}
 	if(playerBonusVampire[client] > 0)
 	{
-		Format(buffer, sizeof(buffer), "%s• +%i do wampirycznych obrazen \n", buffer, playerBonusVampire[client]);
+		Format(buffer, sizeof(buffer), "%T", "VampireDMG", client, buffer, playerBonusVampire[client]);
 	}
 	if(playerBonusGravity[client] > 0)
 	{
-		Format(buffer, sizeof(buffer), "%s• Zmniejsza grawitacje o %i%% \n", buffer, playerBonusGravity[client]);
+		Format(buffer, sizeof(buffer), "%T", "ReducesGravity", client, buffer, playerBonusGravity[client]);
 	}
 	if(playerBonusChanceToBleed[client] > 0)
 	{
-		Format(buffer, sizeof(buffer), "%s• Szansa na krwawienie %i%% \n", buffer, playerBonusChanceToBleed[client]);
+		Format(buffer, sizeof(buffer), "%T", "ChanceOfBleed", client, buffer, playerBonusChanceToBleed[client]);
 	}
 	
-	Format(buffer, sizeof(buffer), "%s \n          Wytrzymałość Przedmiotu %i", buffer, itemEndurance[client]);
+	Format(buffer, sizeof(buffer), "%T", "ItemEndurance", client, buffer, itemEndurance[client]);
 	PanelInfo(client, buffer);
 }
 
@@ -3417,7 +3444,7 @@ Action RevivePlayer(client)
 				revivingTarget[client] = aim;
 				playerCooldown[client] = 2.0;
 				g_hReviving[client] = CreateTimer(0.1, Timer_Revive, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-				PrintToChat(client, "\x01Wskrzeszasz \x04%N\x01.", owner);
+				PrintToChat(client, "T%", "Reviving", client, 0x05, 0x06, owner);
 				// SetEntPropFloat(client, Prop_Data, "m_flProgressBarStartTime", GetGameTime());
 				// SetEntProp(client, Prop_Data, "m_iProgressBarDuration", 2);
 			}
@@ -3500,14 +3527,18 @@ public Action Timer_Revive(Handle timer, any userid)
 		revivingTarget[client] = -1;
 		if (!IsValidEntity(ent))
 		{
-			skillHud[client] = "Użyj";
+			char buffer[5];
+			Format(buffer, sizeof(buffer), "%T", "Use", client);
+			skillHud[client] = buffer;
 			return Plugin_Stop;
 		}
 		
 		int aim = GetClientAimTarget(client, false);
 		if (ent != aim)
 		{
-			skillHud[client] = "Użyj";
+			char buffer[5];
+			Format(buffer, sizeof(buffer), "%T", "Use", client);
+			skillHud[client] = buffer;
 			return Plugin_Stop;
 		}
 		
@@ -3518,17 +3549,21 @@ public Action Timer_Revive(Handle timer, any userid)
 		float vec[3];
 		MakeVectorFromPoints(eyePos, bodyLoc, vec);
 		if (GetVectorLength(vec) > 100) {
-			skillHud[client] = "Użyj";
+			char buffer[5];
+			Format(buffer, sizeof(buffer), "%T", "Use", client);
+			skillHud[client] = buffer;
 			return Plugin_Stop;
 		}
 		
 		int target = GetEntPropEnt(ent, Prop_Send, "m_hOwnerEntity");
 		if (!IsValidClient(target))
 		{
-			skillHud[client] = "Użyj";
+			char buffer[5];
+			Format(buffer, sizeof(buffer), "%T", "Use", client);
+			skillHud[client] = buffer;
 			return Plugin_Stop;
 		}
-		PrintToChat(client, "\x01Wskrzesiłeś \x04%N\x01.", target);
+		PrintToChat(client, "%T", "Revived", client, 0x05, 0x06, target);
 		
 		CS_RespawnPlayer(target);
 		TeleportEntity(target, bodyLoc, NULL_VECTOR, NULL_VECTOR);
@@ -3536,10 +3571,12 @@ public Action Timer_Revive(Handle timer, any userid)
 		if (IsValidEntity(ent))
 			AcceptEntityInput(ent, "kill", 0, 0);
 		
-		PrintToChat(target, "  \x01Wskrzesza Cię \x04%N.", client);
+		PrintToChat(target, "%T", "RevivedBy", target, 0x05, 0x06, client);
 		GiveExp(client, CalcExp(0, client, 3, 0.0)/2);
 		playerToSetPoints[client] = CheckNewLevel(client);
-		skillHud[client] = "Użyj";
+		char buffer[5];
+		Format(buffer, sizeof(buffer), "%T", "Use", client);
+		skillHud[client] = buffer;
 		return Plugin_Stop;
 	}
 		

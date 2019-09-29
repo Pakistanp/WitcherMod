@@ -9,7 +9,7 @@
 	{
 		"#format"	"{1:c},{2:c}"
 		"pl"		" {1}Średni poziom na serwerze to {2}%d."
-		"en"		" {1}The average level on the server is{2}%d."
+		"en"		" {1}The average level on the server is {2}%d."
 	}
 	"Damage"
 	{
@@ -88,5 +88,69 @@
 	{
 		"pl"		"Zwinność [%d]"
 		"en"		"Agility [%d]"
+	}
+	"Class"
+	{
+		"pl"		"Klasa: "
+		"en"		"Class: "
+	}
+	"Heal"
+	{
+		"pl"		"Leczenie: "
+		"en"		"Heal: "
+	}	
+	"Shield"
+	{
+		"pl"		"Tarcza: "
+		"en"		"Shield: "
+	}
+	"CharPowRec"
+	{
+		"pl"		"Otrzymano moc postaci: %s"
+		"en"		"Character power received: %s"
+	}
+	"HealYourself"
+	{
+		"pl"		"siebie"
+		"en"		"yourself"
+	}
+	"HealOther"
+	{
+		"pl"		"innych"
+		"en"		"other"
+	}
+	"ItemDestroyed"
+	{
+		"pl"		"Przedmiot zotał zniszczony!"
+		"en"		"The item was destroyed!"
+	}
+	"Reviving"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Wskrzeszasz {2}%N."
+		"en"		" {1}Reviving {2}%N."
+	}
+	"Use"
+	{
+		"pl"		"Użyj"
+		"en"		"Use"
+	}
+	"Revived"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Wskrzesiłeś {2}%N."
+		"en"		" {1}You revived {2}%N."
+	}
+	"RevivedBy"
+	{
+		"#format"	"{1:c},{2:c}"
+		"pl"		" {1}Wskrzesza Cię {2}%N."
+		"en"		" {1}You was revived by {2}%N."
+	}
+	"LastRoundExp"
+	{
+		"#format"	"{1:c},{2:c},{3:c},{4:c},{5:c}"
+		"pl"		" {1}W poprzedniej rundzie udało Ci się zdobyć {2}%d{3} expa! (Więcej pod komendą {4}!exp{5})"
+		"en"		" {1}In the previous round, you gained {2}%d{3} exp! (More on the {4}!exp{5} command)"
 	}
 }

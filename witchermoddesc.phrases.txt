@@ -40,7 +40,7 @@
 	{
 		"#format"	"{1:c},{2:c}"
 		"pl"		" {1}Informacje na temat statystyk znajdziesz pod komendą {2}!staty."
-		"en"		" {1}Information on statistics can be found under the {2}!stats {1}command."
+		"en"		" {1}Information on statistics can be found under the {2}!stat {1}command."
 	}
 	"Hint3"
 	{

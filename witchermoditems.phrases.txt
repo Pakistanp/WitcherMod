@@ -1,0 +1,136 @@
+"Phrases"
+{
+	"FoundItem"
+	{
+		"pl"		" Znalazłeś przedmiot: %s :: "
+		"en"		" You found the item: %s :: "
+	}
+	
+	"Item1"
+	{
+		"pl"		"Wiedźmiński miecz srebrny"
+		"en"		"Witcher's silver sword"
+	}
+	"Item2"
+	{
+		"pl"		"Miecz Hoskulda Rogatego"
+		"en"		"Horned Hoskuld's sword"
+	}
+	"Item3"
+	{
+		"pl"		"Drewniany miecz"
+		"en"		"Wooden sword"
+	}
+	"Item4"
+	{
+		"pl"		"Koszula"
+		"en"		"Shirt"
+	}
+	"Item5"
+	{
+		"pl"		"Buty egzekutora"
+		"en"		"Executioner's boots"
+	}
+	"Item6"
+	{
+		"pl"		"Wyrzut sumienia"
+		"en"		"Pang of Conscience"
+	}
+	"Item7"
+	{
+		"pl"		"Trofeum z upiora"
+		"en"		"Wraith trophy"
+	}
+	"Item8"
+	{
+		"pl"		"Kovirski kordzik"
+		"en"		"Koviri cutlass"
+	}
+	"Item9"
+	{
+		"pl"		"Trofeum z ekimmy"
+		"en"		"Ekimmara trophy"
+	}
+	"Item10"
+	{
+		"pl"		"Spodnie Yennefer"
+		"en"		"Yennefer's dress"
+	}
+	"Item11"
+	{
+		"pl"		"Rachmistrz"
+		"en"		"The Reckoner"
+	}
+	
+	"Item1Desc"
+	{
+		"pl"		"          Opis przedmiotu %s \n \n"
+		"en"		"          Item description %s \n \n"
+	}
+	
+	"AllStats"
+	{
+		"pl"		"%s• Do wszystkich statystyk + %i \n"	
+		"en"		"%s• For all statistics + %i \n"
+	}
+	"ChanceOfCritical"
+	{
+		"pl"		"%s• Szansa na krytyka + %i%% \n"
+		"en"		"%s• Chance of critical damage + %i%% \n"
+	}
+	"CriticalDamage"
+	{
+		"pl"		"%s• Dodatkowe obrażenia od krytyka + %0.f%%% \n"
+		"en"		"%s• +%0.f%%% Critical hit damage bonus\n"
+	}
+	"AddDamage"
+	{
+		"pl"		"%s• Dodatkowe obrażenia + %i \n"
+		"en"		"%s• Additional damage + %i \n"
+	}
+	"ReducingPhysicalDMG"
+	{
+		"pl"		"%s• Redukcja obrażeń fizycznych + %i \n"
+		"en"		"%s• Reducing physical damage + %i \n"
+	}
+	"IncreasesSpeed"
+	{
+		"pl"		"%s• Zwieksza predkosc biegania o %0.f% punktow \n"
+		"en"		"%s• Increases running speed by %0.f% points\n"
+	}
+	"ReducesCooldown"
+	{
+		"pl"		"%s• Zmniejsza czas ładowania skilla o %0.f% sek \n"
+		"en"		"%s• Reduces cooldown of skills by %0.f% seconds\n"
+	}
+	"ChanceOfRebirth"
+	{
+		"pl"		"%s• Masz %i%% szans na odrodzenie sie po śmierci \n"
+		"en"		"%s• You have a %i%% chance of rebirth after death\n"
+	}
+	"KnifeDMG"
+	{
+		"pl"		"%s• Dodatkowe obrażenia do ataków z noża + %i \n"
+		"en"		"%s• Extra damage from knife attacks + %i \n"
+	}
+	"VampireDMG"
+	{
+		"pl"		"%s• +%i do wampirycznych obrażeń \n"
+		"en"		"%s• +%i to vampire damage\n"
+	}
+	"ReducesGravity"
+	{
+		"pl"		"%s• Zmniejsza grawitacje o %i%% \n"
+		"en"		"%s• Reduces gravity by %i%%\n"
+	}
+	"ChanceOfBleed"
+	{
+		"pl"		"%s• Szansa na krwawienie %i%% \n"
+		"en"		"%s• Chance of bleeding %i%%\n"
+	}
+	"ItemEndurance"
+	{
+		"pl"		"%s \n          Wytrzymałość Przedmiotu %i"
+		"en"		"%s \n          Endurance of item %i"
+	}
+}
