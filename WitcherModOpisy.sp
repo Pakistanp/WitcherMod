@@ -22,7 +22,7 @@ new const String:Class[17][] ={
 "Eredin"
 };
 
-new const String:Hints[15][]={
+new const String:Hints[14][]={
 "Hint0",
 "Hint1",
 "Hint2",
@@ -36,8 +36,7 @@ new const String:Hints[15][]={
 "Hint10",
 "Hint11",
 "Hint12",
-"Hint13",
-"Hint14"
+"Hint13"
 };
 
 new Handle:ClientInSeverTimer[MAXPLAYERS+1] = INVALID_HANDLE;
@@ -293,7 +292,7 @@ public Action Command_Stats(int client, int args)
 
 public Action Command_Hint(int client, int args)
 {	
-	PrintToChat(client, "%T", Hints[GetRandomInt(1,14)], client, 0x05, 0x06);
+	PrintToChat(client, "%T", Hints[GetRandomInt(1,13)], client, 0x05, 0x06);
 	return Plugin_Handled;
 }
 public Action:HintTimer(Handle:timer, any:client)
