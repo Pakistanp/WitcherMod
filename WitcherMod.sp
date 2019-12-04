@@ -205,6 +205,7 @@ new playerChanceToRefillAmmo[MAXPLAYERS+1];
 new playerChanceToFreeze[MAXPLAYERS+1];
 new playerVampire[MAXPLAYERS+1];
 new playerChanceToRespawn[MAXPLAYERS+1];
+//new playerCurseDamage[MAXPLAYERS+1];
 
 new bool:isReflectionDamage[MAXPLAYERS+1] = {false, ...};
 new playerDecoyMaxCount[MAXPLAYERS+1];
@@ -283,7 +284,7 @@ new bool:playerBasePropertyLoaded[MAXPLAYERS+1];
 
 new String:skillHud[MAXPLAYERS+1][20];
 new String:hudOption[MAXPLAYERS+1][10];
-new Handle:g_hHudSync;
+new Handle:hHudSync;
 new Handle:handleMenuPoints[MAXPLAYERS+1] = INVALID_HANDLE;
 new Handle:handleSetAbilityTimer[MAXPLAYERS+1] = INVALID_HANDLE;
 new Handle:ClientInSeverTimer[MAXPLAYERS+1] = INVALID_HANDLE;
@@ -425,11 +426,10 @@ public void OnPluginStart()
 	
 	// for(new iChannel = 0; iChannel < MAXPLAYERS+1; iChannel++)
 	// {
-		g_hHudSync = CreateHudSynchronizer();
-		if(g_hHudSync == INVALID_HANDLE)
+		hHudSync = CreateHudSynchronizer();
+		if(hHudSync == INVALID_HANDLE)
 			SetFailState("HUD synchronisation is not supported by this mod");
 	// }
-	SetHudTextParams(0.01, -0.05, 604800.0, 204, 204, 204, 200, 0);
 	
 	LoadTranslations("witchermod.phrases");
 	LoadTranslations("witchermoditems.phrases");
@@ -488,8 +488,10 @@ public Action:Event_PlayerHurt(Handle:event, const String:name[], bool:dontBroad
 	new attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
 	new victim = GetClientOfUserId(GetEventInt(event, "userid"));
 	new damage = GetEventInt(event, DamageEventName);
-	
-	ShowDamage(victim, attacker, damage);
+	decl String:weapon[30];
+	GetEventString(event,"weapon", weapon, sizeof(weapon));
+	new type = (StrEqual("vote_controller",weapon) || StrEqual("entityflame",weapon)) ? 1 : 0;
+	ShowDamage(victim, attacker, damage, type);
 	
 	return Plugin_Continue;
 }
@@ -772,8 +774,11 @@ public OnClientDisconnect(client)
 	SDKUnhook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 	//CloseHandle(ClientInSeverTimer[client]);
 }
+//damage type
+//physical - 0
+//magical - 1
 
-ShowDamage(victim, attacker, damage)
+ShowDamage(victim, attacker, damage, type)
 {
 	if (attacker == 0)
 	{
@@ -796,35 +801,51 @@ ShowDamage(victim, attacker, damage)
 		}
 	}
 	
-	damageShow[attacker] += damage;
+	//damageShow[attacker] += damage;
 	
 	if (blockShowDamageTimer[attacker])
 	{
 		return;
 	}
 	
-	CreateTimer(0.01, OnShowDamage, attacker);
-	blockShowDamageTimer[attacker] = true;
+	if(type == 0)
+	{
+		SetHudTextParams(0.43, 0.45, 1.3, 255, 0, 0, 200, 1); // red
+		ShowHudText(victim, -1, "%i", damage);
+
+		SetHudTextParams(0.57, 0.45, 1.3, 0, 191, 255, 200, 1); // blue
+		ShowHudText(attacker, -1, "%i", damage);
+	}
+	else
+	{
+		SetHudTextParams(0.43, 0.40, 1.3, 138, 43, 226, 200, 1); // violet
+		ShowHudText(victim, -1, "%i", damage);
+
+		SetHudTextParams(0.57, 0.40, 1.3, 255, 250, 250, 200, 1); // white
+		ShowHudText(attacker, -1, "%i", damage);
+	}
+	//CreateTimer(0.01, OnShowDamage, attacker);
+	//blockShowDamageTimer[attacker] = true;
 }
 
-public Action:OnShowDamage(Handle:timer, any:client)
-{
-	blockShowDamageTimer[client] = false;
+// public Action:OnShowDamage(Handle:timer, any:client)
+// {
+	// blockShowDamageTimer[client] = false;
 	
-	if (damageShow[client] <= 0 || !client)
-	{
-		return;
-	}
+	// if (damageShow[client] <= 0 || !client)
+	// {
+		// return;
+	// }
 	
-	if (!IsClientInGame(client))
-	{
-		return;
-	}
+	// if (!IsClientInGame(client))
+	// {
+		// return;
+	// }
 	
-	PrintHintText(client, "%T", "Damage", client, damageShow[client]);
+	// PrintHintText(client, "%T", "Damage", client, damageShow[client]);
 
-	damageShow[client] = 0;
-}
+	// damageShow[client] = 0;
+// }
 public Action Command_Class(int client, int args)
 {	
 	if(playerClass[client] > 0)
@@ -1435,7 +1456,7 @@ public float MultipleCountPlayers()
 	}
 	else
 	{
-		return FloatDiv(float(GetRealClientCount()), float(MAXPLAYERS));
+		return float(GetRealClientCount())/float(MAXPLAYERS);
 	}
 }
 
@@ -1615,7 +1636,7 @@ public Action:Event_PlayerDeath(Handle:hEvent, const String:strName[], bool:bBro
 	if(!IsValidClient(victim))
 		return;
 	
-	ClearSyncHud(victim, g_hHudSync);
+	ClearSyncHud(victim, hHudSync);
 	SetHud(attacker);
 }
 
@@ -1644,6 +1665,9 @@ public Action:Timer_ServerHud(Handle:hTimer, Handle:hDataPack)
 	
 	decl String:message[220]; 
 	decl String:strClass[10]; 
+	
+	SetHudTextParams(0.01, -0.05, 604800.0, 204, 204, 204, 200, 0);
+	
 	Format(strClass, sizeof(strClass),"%T", "Class", client); 
 	if(playerClass[client] == 4 || playerBonusQueen[client] > 0)
 	{
@@ -1661,7 +1685,7 @@ public Action:Timer_ServerHud(Handle:hTimer, Handle:hDataPack)
 	}
 	else
 		Format(message, sizeof(message), "%s%s Skill: %s\nLevel: %d EXP: %d/%d", strClass, Class[playerClass[client]], skillHud[client], playerLevel[client], playerExp[client], LevelXP[playerLevel[client]]);
-	ShowSyncHudText(client, g_hHudSync, message);
+	ShowSyncHudText(client, hHudSync, message);
 }
 public SetHud(client)
 {
@@ -1782,10 +1806,11 @@ public Action:CooldownTimer(Handle:timer, any:client)
 		char buffer[20];
 		Format(buffer, sizeof(buffer), "%t", "Ready");
 		skillHud[client] = buffer;
+		SetHud(client);
 		return Plugin_Stop;
 	}
 		
-	SetHud(client);
+	//SetHud(client);
 	return Plugin_Continue;
 }
 
@@ -2103,14 +2128,14 @@ void SetInvisible(client)
 {
 	new String:weapon[32];
 	GetClientWeapon(client, weapon, sizeof(weapon));
-	if((playerClass[client] == 9 || playerBonusInvisible[client] > 0) && StrContains(weapon, "weapon_knife") > -1)
+	if((playerClass[client] == 9 || playerBonusInvisible[client] > 0) && StrContains(weapon, "weapon_knife") > -1 && playerMove[client] == false)
 		{
 			if (playerCooldown[client] == 2.0 && playerIsInvisible[client] == 0)
 			{
 				//playerCooldown[client] = 2.0;
 				CreateTimer(0.1, CooldownTimer, client, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 			}
-			else if((playerCooldown[client] == 0 ||playerBonusInvisible[client] > 0) && playerIsInvisible[client] == 0)
+			else if((playerCooldown[client] == 0 || playerBonusInvisible[client] > 0) && playerIsInvisible[client] == 0)
 			{
 				SetPlayerInvisibility(client, playerInvisibility[client] + playerBonusInvisible[client]);
 				playerIsInvisible[client] = 1;
@@ -2285,7 +2310,7 @@ public Float:CalculateDamage(victim, attacker)
 	}
 	if(playerClass[attacker] == 7 || playerBonusCurse[attacker] > 0)
 	{
-		damage = GetPlayerHpPercent(victim, 20)  + playerIntelligence[attacker] * (1.0 + playerBonusCurseDamage[attacker]);
+		damage = GetPlayerHpPercent(victim, 20)  + playerIntelligence[attacker] * (2.0 + playerBonusCurseDamage[attacker]);
 	}
 	if(playerClass[attacker] == 8 || playerBonusFireBall[attacker] > 0)
 	{
@@ -2940,7 +2965,7 @@ void SetSpecifyStats(client)
 		}
 		case 13: //Imlerith
 		{
-			playerReflectDamage[client] = 10 + ((playerIntelligence[client] / 10) > 50 ? 50 : (playerIntelligence[client] / 10));
+			playerReflectDamage[client] = 10 + ((playerIntelligence[client] / 5) > 60 ? 60 : (playerIntelligence[client] / 5));
 		}
 		case 14: //Caranthir
 		{
@@ -3449,7 +3474,7 @@ Action RevivePlayer(client)
 				revivingTarget[client] = aim;
 				playerCooldown[client] = 2.0;
 				g_hReviving[client] = CreateTimer(0.1, Timer_Revive, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-				PrintToChat(client, "T%", "Reviving", client, 0x05, 0x06, owner);
+				PrintToChat(client, "%T", "Reviving", client, 0x05, 0x06, owner);
 				// SetEntPropFloat(client, Prop_Data, "m_flProgressBarStartTime", GetGameTime());
 				// SetEntProp(client, Prop_Data, "m_iProgressBarDuration", 2);
 			}
