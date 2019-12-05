@@ -99,20 +99,14 @@
 	"Hint12"
 	{
 		"#format"	"{1:c},{2:c}"
-		"pl"		" {1}Wejdź na forum {2}witchermod.gameclan.pl/forum"
-		"en"		" {1}Go to the forum: {2}http://witchermod.gameclan.pl/forum."
+		"pl"		" {1}Wejdź na forum {2}https://alkoskill.pl/."
+		"en"		" {1}Go to the forum: {2}https://alkoskill.pl/."
 	}
 	"Hint13"
 	{
 		"#format"	"{1:c},{2:c}"
 		"pl"		" {1}Aby sprawdzić działanie itemu wpisz {2}!item."
 		"en"		" {1}To check the operation of the item, enter: {2}!item"
-	}
-	"Hint14"
-	{
-		"#format"	"{1:c},{2:c}"
-		"pl"		" {1}Aby kupić vipa napisz na forum do {2}pakistanp."
-		"en"		" {1}To buy a VIP please write to the owner in the forum {2}(pakistanp)."
 	}
 	
 	"Lambert"
