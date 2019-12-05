@@ -116,7 +116,7 @@ public Action Timer_DelaySpawn(Handle timer, any data)
 		return Plugin_Continue;
 	}
 
-	new String:sWebsiteLink[] = "http://witchermod.gameclan.pl/forum/";
+	new String:sWebsiteLink[] = "https://alkoskill.pl/";
 
 	PrintToChat(client, "%T", "Welcome", client, 0x07, 0x01, 0x06, client);
 	PrintToChat(client, "%T", "JoinToCommunity", client, 0x07, 0x01, 0x06, sWebsiteLink);
