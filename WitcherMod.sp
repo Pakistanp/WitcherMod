@@ -2284,7 +2284,7 @@ public float CalculateDistance(client)
 	{
 		case 6:
 		{
-			distance = 600.0 + playerIntelligence[client] * 2;
+			distance = 600.0 + playerIntelligence[client] * 4;
 		}
 		case 7:
 		{
