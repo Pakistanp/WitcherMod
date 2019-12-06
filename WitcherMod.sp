@@ -4035,7 +4035,7 @@ BuildSpecMessage(client)
     iBufLen = 0;
     iBufLen += FormatEx(szBuffer[iBufLen], sizeof(szBuffer)-iBufLen, "%s%s\n", strClass, Class[playerClass[g_iSpectating[client]]]);
 	iBufLen += FormatEx(szBuffer[iBufLen], sizeof(szBuffer)-iBufLen, "Level: %d\n", playerLevel[g_iSpectating[client]]);
-	iBufLen += FormatEx(szBuffer[iBufLen], sizeof(szBuffer)-iBufLen, "Item: %d\n", playerItemName[playerItem[g_iSpectating[client]]]);
+	iBufLen += FormatEx(szBuffer[iBufLen], sizeof(szBuffer)-iBufLen, "Item: %s\n", playerItemName[g_iSpectating[client]]);
 
   
     ShowSpecMessage(client, szBuffer);
