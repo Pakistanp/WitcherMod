@@ -292,6 +292,12 @@ new Handle:ClientInSeverTimer[MAXPLAYERS+1] = INVALID_HANDLE;
 Handle g_hReviving[MAXPLAYERS + 1];
 Handle healHandle[MAXPLAYERS + 1];
 
+// SPECT //
+
+new g_iSpectating[MAXPLAYERS+1];
+new Float:g_fNextSpecMessage[MAXPLAYERS+1];
+new Handle:hHudSpecSync;
+
 // GRENADE //
 
 // SQL //
@@ -428,6 +434,9 @@ public void OnPluginStart()
 	// {
 		hHudSync = CreateHudSynchronizer();
 		if(hHudSync == INVALID_HANDLE)
+			SetFailState("HUD synchronisation is not supported by this mod");
+		hHudSpecSync = CreateHudSynchronizer();
+		if(hHudSpecSync == INVALID_HANDLE)
 			SetFailState("HUD synchronisation is not supported by this mod");
 	// }
 	
@@ -756,6 +765,7 @@ public void OnClientPutInServer(int client)
 	
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 	SDKHook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
+	SDKHook(client, SDKHook_PreThink, hook_PreThink);
 	
 	ClientInSeverTimer[client] = (CreateTimer(60.0, TimerAdd, client, TIMER_REPEAT));
 }
@@ -772,6 +782,7 @@ public OnClientDisconnect(client)
 	}
 	
 	SDKUnhook(client, SDKHook_OnTakeDamage, OnTakeDamage);
+	SDKUnhook(client, SDKHook_PreThink, hook_PreThink);
 	//CloseHandle(ClientInSeverTimer[client]);
 }
 //damage type
@@ -3971,5 +3982,70 @@ public Action Command_GiveItem(int client, int args)
 	GiveItem(client, StringToInt(full));
 	return Plugin_Handled;
 }
+
+//HUD FOR SPECTATOR
+public hook_PreThink(client)
+{
+    if(IsPlayerAlive(client))
+        return;
+		
+    if(!UpdateSpectatingTarget(client))
+        return;
+    
+    BuildSpecMessage(client);
+}
+
+UpdateSpectatingTarget(client)
+{
+    // Return true if the client is spectating a different player.
+    
+    switch(GetEntProp(client, Prop_Send, "m_iObserverMode"))
+    {
+        case 4, 5:
+        {
+            new iSpectating = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
+            if(iSpectating != g_iSpectating[client])
+            {
+                g_iSpectating[client] = iSpectating;
+                return true;
+            }
+        }
+        default:
+        {
+            if(g_iSpectating[client])
+            {
+                // This client was spectating someone, but isn't anymore so clear their message.
+                g_iSpectating[client] = 0;
+                ShowSpecMessage(client, " ");
+            }
+        }
+    }
+		
+    return false;
+}
+
+BuildSpecMessage(client)
+{
+    g_fNextSpecMessage[client] = GetEngineTime() + 1.0;
+    
+    if(g_iSpectating[client] <= 0 || !IsClientInGame(g_iSpectating[client]))
+        return;
+    
+    static String:szBuffer[254], iBufLen;
+    iBufLen = 0;
+    iBufLen += FormatEx(szBuffer[iBufLen], sizeof(szBuffer)-iBufLen, "Klasa: %s\n", Class[playerClass[g_iSpectating[client]]]);
+	iBufLen += FormatEx(szBuffer[iBufLen], sizeof(szBuffer)-iBufLen, "Poziom: %d\n", playerLevel[g_iSpectating[client]]);
+	iBufLen += FormatEx(szBuffer[iBufLen], sizeof(szBuffer)-iBufLen, "Item: %d\n", playerItemName[playerItem[g_iSpectating[client]]]);
+
+  
+    ShowSpecMessage(client, szBuffer);
+}
+
+ShowSpecMessage(client, const String:szMessage[])
+{
+    SetHudTextParams(0.70, -0.35, 60.0, 255, 250, 250, 200, 0); // white
+	ShowSyncHudText(client, hHudSpecSync, szMessage);
+}
+
 // check
 // https://github.com/Franc1sco/MolotovCockTails/blob/master/molotov.sp
