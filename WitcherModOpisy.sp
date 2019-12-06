@@ -40,6 +40,7 @@ new const String:Hints[14][]={
 };
 
 new Handle:ClientInSeverTimer[MAXPLAYERS+1] = INVALID_HANDLE;
+new Handle:ClientInSeverTimerAd[MAXPLAYERS+1] = INVALID_HANDLE;
 
 bool g_bMessagesShown[MAXPLAYERS + 1];
 
@@ -56,6 +57,7 @@ public void OnPluginStart()
 	RegConsoleCmd("klasy", Command_Classes);
 	RegConsoleCmd("classes", Command_Classes);
 	RegConsoleCmd("stat", Command_Stats);
+	RegConsoleCmd("stats", Command_Stats);
 	RegConsoleCmd("staty", Command_Stats);
 	RegConsoleCmd("statystyki", Command_Stats);
 	RegConsoleCmd("porada", Command_Hint);
@@ -76,6 +78,7 @@ public void OnClientPutInServer(int client)
 		if (GetClientLanguage(client) != GetLanguageByCode("pl"))
 			SetClientLanguage(client, GetLanguageByCode("en"));
 		ClientInSeverTimer[client] = (CreateTimer(300.0, HintTimer, client, TIMER_REPEAT));
+		ClientInSeverTimerAd[client] = (CreateTimer(60.0, AdTimer, client, TIMER_REPEAT));
 	}
 }
 
@@ -299,6 +302,10 @@ public Action:HintTimer(Handle:timer, any:client)
 {
 	Command_Hint(client, 1);
 	PrintToChat(client, "%T", Hints[0], client, 0x05, 0x06);
+}
+public Action:AdTimer(Handle:timer, any:client)
+{
+	PrintToChat(client, "%T", Hints[12], client, 0x05, 0x06);
 }
 
 public Action Command_Language(int client, int args)
