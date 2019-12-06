@@ -1666,8 +1666,7 @@ public Action:Timer_ServerHud(Handle:hTimer, Handle:hDataPack)
 {
 	ResetPack(hDataPack);
 	
-	new iUserId = ReadPackCell(hDataPack);
-	new client = GetClientOfUserId(iUserId);
+	new client = ReadPackCell(hDataPack);
 	if(!IsValidClient(client))
 		return;
 
@@ -1702,7 +1701,7 @@ public SetHud(client)
 {
 	new Handle:hDataPack;
 	CreateDataTimer(0.2, Timer_ServerHud, hDataPack, TIMER_FLAG_NO_MAPCHANGE);
-	WritePackCell(hDataPack, GetClientUserId(client));
+	WritePackCell(hDataPack, client);
 }
 
 public void SetPlayerSpeed (int client, float amount)
@@ -2797,11 +2796,9 @@ public void CreateFireBall(int client)
 	ScaleVector(pos, 50.0);
 	AddVectors(pos, origin, pos);
 	
-	new Float:player_velocity[3], Float:velocity[3];
-	GetEntPropVector(client, Prop_Data, "m_vecVelocity", player_velocity);
+	new Float:velocity[3];
 	GetAngleVectors(angle, velocity, NULL_VECTOR, NULL_VECTOR);
 	ScaleVector(velocity, 1000.0);
-	AddVectors(velocity, player_velocity, velocity);
 
 	new entindex = CreateEntityByName("decoy_projectile");
 	if (entindex != -1)
@@ -4032,9 +4029,12 @@ BuildSpecMessage(client)
         return;
     
     static String:szBuffer[254], iBufLen;
+	decl String:strClass[10]; 
+	
+	Format(strClass, sizeof(strClass),"%T", "Class", client);
     iBufLen = 0;
-    iBufLen += FormatEx(szBuffer[iBufLen], sizeof(szBuffer)-iBufLen, "Klasa: %s\n", Class[playerClass[g_iSpectating[client]]]);
-	iBufLen += FormatEx(szBuffer[iBufLen], sizeof(szBuffer)-iBufLen, "Poziom: %d\n", playerLevel[g_iSpectating[client]]);
+    iBufLen += FormatEx(szBuffer[iBufLen], sizeof(szBuffer)-iBufLen, "%s%s\n", strClass, Class[playerClass[g_iSpectating[client]]]);
+	iBufLen += FormatEx(szBuffer[iBufLen], sizeof(szBuffer)-iBufLen, "Level: %d\n", playerLevel[g_iSpectating[client]]);
 	iBufLen += FormatEx(szBuffer[iBufLen], sizeof(szBuffer)-iBufLen, "Item: %d\n", playerItemName[playerItem[g_iSpectating[client]]]);
 
   
