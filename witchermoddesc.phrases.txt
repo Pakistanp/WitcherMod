@@ -93,13 +93,13 @@
 	"Hint11"
 	{
 		"#format"	"{1:c},{2:c}"
-		"pl"		" {1}Znalazłeś buga albo masz ciekawe pomysły? Zgłoś to! Możesz dostać puknty które, mozesz wymienić na {2}vipa lub expa!"
-		"en"		" {1}Have you found a bug or have interesting ideas? Report it! You can get puknty which you can exchange for {2}VIP or EXP."
+		"pl"		" {1}Znalazłeś buga albo masz ciekawe pomysły? Zgłoś to na forum! Możesz dostać puknty które, mozesz wymienić na {2}vipa lub expa!"
+		"en"		" {1}Have you found a bug or have interesting ideas? Report it on the forum! You can get puknty which you can exchange for {2}VIP or EXP."
 	}
 	"Hint12"
 	{
 		"#format"	"{1:c},{2:c}"
-		"pl"		" {1}Wejdź na forum {2}https://alkoskill.pl/."
+		"pl"		" {1}Odwiedź nasze forum {2}https://alkoskill.pl/."
 		"en"		" {1}Go to the forum: {2}https://alkoskill.pl/."
 	}
 	"Hint13"
@@ -111,23 +111,23 @@
 	
 	"Lambert"
 	{
-		"pl"		"          Opis Klasy Lambert \n \n• 100 HP \n• Posiada znak Igni który atakuje obszarowo zadaje duże obrażenia, ale ma mały zasieg.\nIgni ma szanse na podpalenie wroga.\n• Zasięg: 300 + int\n• Obrażenia: 15%% hp + int * 0.5\n• Szansa na podpalenie [%%]: 20 + int/6.6, max 50\n• Czas podpalenia: 3 sek\n• Cooldown: 20 sek\n"
-		"en"		"          Class description Lambert \n \n• 100 HP \n• It has an Igni sign that deals area-wise, deals high damage, but has a small range.\nIgni has a chance to set the enemy on fire.\n• Range: 300 + int\n• Damage: 15%% hp + int * 0.5\n• Chance of arson [%%]: 20 + int/6.6, max 50\n• Arson Time: 3 sec\n• Cooldown: 20 sec\n"
+		"pl"		"          Opis Klasy Lambert \n \n• 100 HP \n• Posiada znak Igni który atakuje obszarowo zadaje duże obrażenia, ale ma mały zasieg.\nIgni ma szanse na podpalenie wroga.\n• Zasięg: 300 + int\n• Obrażenia: 15%% hp + int * 0.5\n• Szansa na podpalenie [%%]: 20 + int/6.6, max 50\n• Czas podpalenia: 3 sek\n• Cooldown: 20 sek\n• Do użycia skilla potrzebny bind useskill."
+		"en"		"          Class description Lambert \n \n• 100 HP \n• It has an Igni sign that deals area-wise, deals high damage, but has a small range.\nIgni has a chance to set the enemy on fire.\n• Range: 300 + int\n• Damage: 15%% hp + int * 0.5\n• Chance of arson [%%]: 20 + int/6.6, max 50\n• Arson Time: 3 sec\n• Cooldown: 20 sec\n• To use the skill you need a bind useskill."
 	}
 	"Geralt"
 	{
-		"pl"		"          Opis Klasy Geralt \n \n• 110 HP \n• Posiada znak Aard który odpycha i atakuje wrogów obszarowo, zadaje małe obrażenia, ma średni zasieg.\nAard ma szanse na wyrzucenie broni.\n• Zasięg: 400 + int * 1.25\n• Obrażenia: 10%% hp + int * 0.25\n• Szansa na wyrzucenie broni [%%]: 20 + int/6.6, max 50\n• Cooldown: 20 sek\n"
-		"en"		"          Class description Geralt \n \n• 110 HP \n• It has the Aard sign that repels and attacks enemies in an area, deals low damage, has a medium range.\nAard has a chance of firing a gun.\n• Range: 400 + int * 1.25\n• Damage: 10%% hp + int * 0.25\n• Chance to throw weapons [%%]: 20 + int/6.6, max 50\n• Arson Time: 3 sec\n• Cooldown: 20 sec\n"
+		"pl"		"          Opis Klasy Geralt \n \n• 110 HP \n• Posiada znak Aard który odpycha i atakuje wrogów obszarowo, zadaje małe obrażenia, ma średni zasieg.\nAard ma szanse na wyrzucenie broni.\n• Zasięg: 400 + int * 1.25\n• Obrażenia: 10%% hp + int * 0.25\n• Szansa na wyrzucenie broni [%%]: 20 + int/6.6, max 50\n• Cooldown: 20 sek\n• Do użycia skilla potrzebny bind useskill."
+		"en"		"          Class description Geralt \n \n• 110 HP \n• It has the Aard sign that repels and attacks enemies in an area, deals low damage, has a medium range.\nAard has a chance of firing a gun.\n• Range: 400 + int * 1.25\n• Damage: 10%% hp + int * 0.25\n• Chance to throw weapons [%%]: 20 + int/6.6, max 50\n• Cooldown: 20 sec\n• To use the skill you need a bind useskill."
 	}
 	"Vesemir"
 	{
-		"pl"		"          Opis Klasy Vesemir \n \n• 120 HP \n• Posiada znak Yrden który, spowalnia wrogów na średnim dystansie.\n• Zadaje nieuchronne dodatkowe obrażenia spowolnionym wrogom.\n• Dodatkowe obrażenia: 2 + int/10\n• Zasięg: 400 + int * 1.25\n• Spowolnienie [%%]: 10 + int * 0.25, max 60\n• Czas spowolnienia: 3 + int / 50 sek (max 8)\n• Cooldown: 20 sek\n"
-		"en"		"          Class description Vesemir \n \n• 120 HP \n• It has a Yrden sign that slows enemies on a medium range.\n• Deals inevitable additional damage to slowed down enemies.\n• Extra damage: 2 + int/10\n• Range: 400 + int\n•Slowed [%%]: 10 + int * 0.25, max 60\n• Slow down time: 3 + int / 50 sek (max 8)\n• Cooldown: 20 sec\n"
+		"pl"		"          Opis Klasy Vesemir \n \n• 120 HP \n• Posiada znak Yrden który, spowalnia wrogów na średnim dystansie.\n• Zadaje nieuchronne dodatkowe obrażenia spowolnionym wrogom.\n• Dodatkowe obrażenia: 2 + int/10\n• Zasięg: 400 + int * 1.25\n• Spowolnienie [%%]: 10 + int * 0.25, max 60\n• Czas spowolnienia: 3 + int / 50 sek (max 8)\n• Cooldown: 20 sek\n• Do użycia skilla potrzebny bind useskill."
+		"en"		"          Class description Vesemir \n \n• 120 HP \n• It has a Yrden sign that slows enemies on a medium range.\n• Deals inevitable additional damage to slowed down enemies.\n• Extra damage: 2 + int/10\n• Range: 400 + int\n•Slowed [%%]: 10 + int * 0.25, max 60\n• Slow down time: 3 + int / 50 sek (max 8)\n• Cooldown: 20 sec\n• To use the skill you need a bind useskill."
 	}
 	"Eskel"
 	{
-		"pl"		"          Opis Klasy Eskel \n \n• 100 HP \n• Posiada znak Queen który daje magiczna tarcze pochlaniajaca obrażenia.\nKiedy tarcza zostaje zniszczona odrzuca wrogów na małym dystansie i wybucha zadajac małe obrazenia.\n• Moc tarczy (HP): 20 + int\n• Obrażenia od wybuchu: 5%% hp + int * 0.15\n• Zasieg wybuchu: 200 + int\n• Cooldown: 20sek\n"
-		"en"		"          Class description Eskel \n \n• 100 HP \n• It has a Queen sign that gives a magic shield that absorbs damage.\nWhen the shield is destroyed, it knocks back enemies at a short distance and explodes, inflicting little damage.\n• Shield power (HP): 20 + int\n• Explosion damage: 5%% hp + int * 0.15\n• Explosion Range: 200 + int\n• Cooldown: 20 sec\n"
+		"pl"		"          Opis Klasy Eskel \n \n• 100 HP \n• Posiada znak Queen który daje magiczna tarcze pochlaniajaca obrażenia.\nKiedy tarcza zostaje zniszczona odrzuca wrogów na małym dystansie i wybucha zadajac małe obrazenia.\n• Moc tarczy (HP): 20 + int\n• Obrażenia od wybuchu: 5%% hp + int * 0.15\n• Zasieg wybuchu: 200 + int\n• Cooldown: 20sek\n• Do użycia skilla potrzebny bind useskill."
+		"en"		"          Class description Eskel \n \n• 100 HP \n• It has a Queen sign that gives a magic shield that absorbs damage.\nWhen the shield is destroyed, it knocks back enemies at a short distance and explodes, inflicting little damage.\n• Shield power (HP): 20 + int\n• Explosion damage: 5%% hp + int * 0.15\n• Explosion Range: 200 + int\n• Cooldown: 20 sec\n• To use the skill you need a bind useskill."
 	}
 	"Leto"
 	{
@@ -141,13 +141,13 @@
 	}
 	"Yennefer"
 	{
-		"pl"		"          Opis Klasy Yennefer \n \n• 90 HP \n• Posiada czar klątwy który atakuje najblizszego wroga w zasiegu.\n• Obrażenia: 20%% hp + int.\n• Zasięg: 600 + int * 2\n"
-		"en"		"          Class description Yennefer \n \n• 90 HP \n• Has a spell that attacks the closest enemy in range.\n• Damage: 20%% hp + int.\n• Range: 600 + int * 2\n"
+		"pl"		"          Opis Klasy Yennefer \n \n• 90 HP \n• Posiada czar klątwy który atakuje najblizszego wroga w zasiegu.\n• Obrażenia: 20%% hp + int.\n• Zasięg: 600 + int * 4\n• Do użycia skilla potrzebny bind useskill."
+		"en"		"          Class description Yennefer \n \n• 90 HP \n• Has a spell that attacks the closest enemy in range.\n• Damage: 20%% hp + int.\n• Range: 600 + int * 4\n• To use the skill you need a bind useskill."
 	}
 	"Triss"
 	{
-		"pl"		"          Opis Klasy Triss \n \n• 105 HP \n• Posiada czar kula ognia.\n• Kula po zderzeniu wybucha w obszarze 150 zadajac obrazenia.\n• Obrażenia: 15%% hp + int/2 \n"
-		"en"		"          Class description Triss \n \n• 105 HP \n• Has a fireball spell.\n• The ball explodes in area 150 after collision, causing damage.\n• Damage: 15%% hp + int/2 \n"
+		"pl"		"          Opis Klasy Triss \n \n• 105 HP \n• Posiada czar kula ognia.\n• Kula po zderzeniu wybucha w obszarze 150 zadajac obrazenia.\n• Obrażenia: 15%% hp + int/2 \n• Do użycia skilla potrzebny bind useskill."
+		"en"		"          Class description Triss \n \n• 105 HP \n• Has a fireball spell.\n• The ball explodes in area 150 after collision, causing damage.\n• Damage: 15%% hp + int/2 \n• To use the skill you need a bind useskill."
 	}
 	"Keira"
 	{
@@ -156,13 +156,13 @@
 	}
 	"Felippa"
 	{
-		"pl"		"          Opis Klasy Felippa \n \n• 100 HP \n• Może wskrzeszac sojuszników przyrzymując E.\n• Co 5 sek leczy siebie albo sojuszników w zależnosci od opcji.\n• Opcje można zmienić używając skilla(useskill).\n• Leczenie: 5 + int/10 \n"
-		"en"		"          Class description Felippa \n \n• 100 HP \n• Can resurrect allies by holding E.\n• Every 5 seconds heals yourself or allies depending on your options.\n• Options can be changed using the skill(useskill).\n• Treatment: 5 + int/10\n"
+		"pl"		"          Opis Klasy Felippa \n \n• 100 HP \n• Może wskrzeszac sojuszników przyrzymując E.\n• Co 5 sek leczy siebie albo sojuszników w zależnosci od opcji.\n• Opcje można zmienić używając skilla(useskill).\n• Leczenie: 5 + int/10 \n• Do użycia skilla potrzebny bind useskill."
+		"en"		"          Class description Felippa \n \n• 100 HP \n• Can resurrect allies by holding E.\n• Every 5 seconds heals yourself or allies depending on your options.\n• Options can be changed using the skill(useskill).\n• Treatment: 5 + int/10\n• To use the skill you need a bind useskill."
 	}
 	"Fringilla"
 	{
-		"pl"		"          Opis Klasy Fringilla \n \n• 110 HP \n• Zamienia najblizszego gracza w kurczaka na 3sek\n• Przejmuje moce postaci na 10 + int/15 sek.\n• Pozyskane moce sa silniejsze i zależą od int.\n• Klasa VIP\n"
-		"en"		"          Class description Fringilla \n \n• 110 HP \n• Turns the next player into a chicken for 3 seconds.\n• Takes over the character's powers 10 + int/15 sec.\n• Acquired powers are stronger and depend on int.\n• VIP Class\n"
+		"pl"		"          Opis Klasy Fringilla \n \n• 110 HP \n• Zamienia najblizszego gracza w kurczaka na 3sek\n• Przejmuje moce postaci na 10 + int/15 sek.\n• Pozyskane moce sa silniejsze i zależą od int.\n• Klasa VIP\n• Do użycia skilla potrzebny bind useskill."
+		"en"		"          Class description Fringilla \n \n• 110 HP \n• Turns the next player into a chicken for 3 seconds.\n• Takes over the character's powers 10 + int/15 sec.\n• Acquired powers are stronger and depend on int.\n• VIP Class\n• To use the skill you need a bind useskill."
 	}
 	"Ge'els"
 	{
@@ -171,8 +171,8 @@
 	}
 	"Imlerith"
 	{
-		"pl"		"          Opis Klasy Imlerith \n \n• 120 HP \n• Bardziej wykorzystuje zrecznosc, ale wraz z jej wzrostem maleja zadawane obrażenia.\n• Posiada umiejętność przyciągania wrogów w obszarze 400.\n• Po przyciągnięciu wroga przez 5sek odbija obrażenia.\n• Maksymalna odporność: 80%%\n• Odbicie obrazen[%%]: 10 + int/10, max 60\n"
-		"en"		"          Class description Imlerith \n \n• 120 HP \n• It uses dexterity more, but its damage decreases as it increases.\n• Has the ability to attract enemies in the area 400.\n• After attracting an enemy for 5 seconds, reflects damage.\n• Maximum resistance: 80%%\n• Reflection of injuries[%%]: 10 + int/10, max 60\n"
+		"pl"		"          Opis Klasy Imlerith \n \n• 120 HP \n• Bardziej wykorzystuje zrecznosc, ale wraz z jej wzrostem maleja zadawane obrażenia.\n• Posiada umiejętność przyciągania wrogów w obszarze 400.\n• Po przyciągnięciu wroga przez 5sek odbija obrażenia.\n• Maksymalna odporność: 80%%\n• Odbicie obrazen[%%]: 10 + int/10, max 60\n• Do użycia skilla potrzebny bind useskill."
+		"en"		"          Class description Imlerith \n \n• 120 HP \n• It uses dexterity more, but its damage decreases as it increases.\n• Has the ability to attract enemies in the area 400.\n• After attracting an enemy for 5 seconds, reflects damage.\n• Maximum resistance: 80%%\n• Reflection of injuries[%%]: 10 + int/10, max 60\n• To use the skill you need a bind useskill."
 	}
 	"Caranthir"
 	{
@@ -181,8 +181,8 @@
 	}
 	"Nithral"
 	{
-		"pl"		"          Opis Klasy Nithral \n \n• 100 HP \n• Ma 10%% szans na krwawienie przy strzale.\n• Raz na runde moze uzyc skilla wpadając w furie. Furia daje:\n•• Zmniejszona grawitacje\n•• Widzenie przez sciany krwawiacych wrogów\n•• Ataki krwawiacych wrogow zyskuja wampiryzm\n•• Szansa na krwawienie zwieksza sie do 50%%\n•• Moze atakowac tylko z noza\n• Czas krwawienia: 5sek\n• Czas furii: 30sek\n• Zmniejszona grawitacja[%%]: 10 + zrecznosc/5, max 50\n• Wampiryzm: 5 + int/10, max 25\n"
-		"en"		"          Class description Nithral \n \n• 100 HP \n• Has a 10% chance of bleeding when shot.\n• Once in a round, he can use his skills to get furious. Fury gives:\n•• Gravity reduced\n•• Seeing through the walls of bleeding enemies\n•• Attacks of bleeding enemies gain vampirism\n•• The chance of bleeding increases to 50%%\n•• Can only attack with a knife\n• bleeding time: 5sek\n• Time of fury: 30sec\n• Gravity reduced[%%]: 10 + dexterity/5, max 50\n• vampirism: 5 + int/10, max 25\n"
+		"pl"		"          Opis Klasy Nithral \n \n• 100 HP \n• Ma 10%% szans na krwawienie przy strzale.\n• Raz na runde moze uzyc skilla wpadając w furie. Furia daje:\n•• Zmniejszona grawitacje\n•• Widzenie przez sciany krwawiacych wrogów\n•• Ataki krwawiacych wrogow zyskuja wampiryzm\n•• Szansa na krwawienie zwieksza sie do 50%%\n•• Moze atakowac tylko z noza\n• Czas krwawienia: 5sek\n• Czas furii: 30sek\n• Zmniejszona grawitacja[%%]: 10 + zrecznosc/5, max 50\n• Wampiryzm: 5 + int/10, max 25\n• Do użycia skilla potrzebny bind useskill."
+		"en"		"          Class description Nithral \n \n• 100 HP \n• Has a 10% chance of bleeding when shot.\n• Once in a round, he can use his skills to get furious. Fury gives:\n•• Gravity reduced\n•• Seeing through the walls of bleeding enemies\n•• Attacks of bleeding enemies gain vampirism\n•• The chance of bleeding increases to 50%%\n•• Can only attack with a knife\n• bleeding time: 5sek\n• Time of fury: 30sec\n• Gravity reduced[%%]: 10 + dexterity/5, max 50\n• vampirism: 5 + int/10, max 25\n• To use the skill you need a bind useskill."
 	}
 	"Eredin"
 	{
