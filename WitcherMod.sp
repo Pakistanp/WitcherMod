@@ -1352,8 +1352,8 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 		}
 		if(playerClass[attacker] == 13)
 		{
-			if(playerDamageReduction[attacker] > 20)
-				damage *= 1.0 - ((playerDamageReduction[attacker] - 20) / 100.0);
+			if(playerDamageReduction[attacker] > 0.2)
+				damage *= 1.0 - (playerDamageReduction[attacker] - 0.2);
 		}
 		
 		int exp = 0;
