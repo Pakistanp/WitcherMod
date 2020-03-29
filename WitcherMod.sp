@@ -235,6 +235,7 @@ new bool:isPlayerSlowed[MAXPLAYERS+1];
 
 new playerHealOption[MAXPLAYERS+1];
 
+new bool:playerRevived[MAXPLAYERS + 1] = {false, ...};
 int revivingTarget[MAXPLAYERS + 1];
 new decoyEntity[MAXPLAYERS + 1] = {-1, ...};
 
@@ -992,11 +993,17 @@ public Action:SetMenuPointsTimer(Handle:timer, any:client)
 	handleMenuPoints[client] = null;
 }
 
-public Action:SetPlayerAbilitiesTimer(Handle:timer, any:client)
+public Action:ReminderClassTimer(Handle:timer, any:client)
 {
-	SetPlayerHp(client, playerHP[client]);
-	SetPlayerSpeed(client, 1.0 + playerSpeed[client]);
-    KillTimer(handleSetAbilityTimer[client]);
+	if(playerClass[client] != 0 || !IsClientInGame(client) || !IsPlayerAlive(client))
+	{
+		return Plugin_Stop;
+	}
+	else
+	{
+		PrintToChat(client, " \x01 Nie masz wybranej klasy. Aby wybrać klasę wpisz \x06!klasa.");
+		return Plugin_Continue;
+	}
 } 
 
 public Action:TimerAdd(Handle:timer, any:client)
@@ -1010,6 +1017,15 @@ public Action:TimerAdd(Handle:timer, any:client)
 	else
 		return Plugin_Stop;
 }
+
+public Action:SetPlayerAbilitiesTimer(Handle:timer, any:client)
+{
+	if(!playerRevived[client])
+		SetPlayerHp(client, playerHP[client]);
+	playerRevived[client] = false;
+	SetPlayerSpeed(client, 1.0 + playerSpeed[client]);
+    KillTimer(handleSetAbilityTimer[client]);
+} 
 
 public Action:ResetPlayerLastRoundExpTimer(Handle:timer, any:client)
 {
@@ -1163,10 +1179,12 @@ public int MenuPoints_Handler(Menu menu, MenuAction action, int client, int a)
 public Action:Event_PlayerChangeTeam(Handle:hEvent, const String:strName[], bool:bBroadcast)
 {
 	new client = GetClientOfUserId(GetEventInt(hEvent, "userid"));
-	if(!IsValidClient(client) || IsFakeClient(client) || GetEventInt(hEvent, "team") > 1)
+	if(!IsValidClient(client) || IsFakeClient(client) || GetEventInt(hEvent, "team") == 1)
 		return;
-
-		SetHud(client);
+		
+	CS_SetClientClanTag(client, Class[playerClass[client]]);
+	SetHud(client);
+	CreateTimer(5.0, ReminderClassTimer, client, TIMER_REPEAT);
 }
 
 public Action:Event_PlayerSpawn(Handle:hEvent, const String:strName[], bool:bBroadcast)
@@ -1937,19 +1955,16 @@ bool:RespawnPlayer(client)
 		{
 			CreateTimer(0.5, RespawnPlayerTimer, client);
 			respawn = true;
+			playerRevived[client] = true;
 		}
 	}
-	// if(playerRevived[client])
-	// {
-		// CS_RespawnPlayer(client);
-		// respawn = true;
-	// }
 	return respawn;
 }
 
 public Action:RespawnPlayerTimer(Handle:timer, any:client)
 {
 	CS_RespawnPlayer(client);
+	SetPlayerHp(client, 25);
 }
 public OnGameFrame()
 {
@@ -4025,7 +4040,7 @@ BuildSpecMessage(client)
 {
     g_fNextSpecMessage[client] = GetEngineTime() + 1.0;
     
-    if(g_iSpectating[client] <= 0 || !IsClientInGame(g_iSpectating[client]))
+    if(g_iSpectating[client] <= 0 || !IsValidClient(g_iSpectating[client]))
         return;
     
     static String:szBuffer[254], iBufLen;

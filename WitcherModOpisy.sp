@@ -84,8 +84,11 @@ public void OnClientPutInServer(int client)
 
 public OnClientDisconnect(client)
 {
-	if (IsClientInGame(client) && !IsFakeClient(client)) 
+	if (IsClientInGame(client) && !IsFakeClient(client))
+	{	
 		CloseHandle(ClientInSeverTimer[client]);
+		CloseHandle(ClientInSeverTimerAd[client]);
+	}
 		
 	g_bMessagesShown[client] = false;
 }
@@ -158,97 +161,97 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 			{
 				case 0:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Lambert");
 					PanelInfoClass(client, buffer);
 				}	
 				case 1:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Geralt");
 					PanelInfoClass(client, buffer);
 				}
 				case 2:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Vesemir");
 					PanelInfoClass(client, buffer);
 				}
 				case 3:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Eskel");
 					PanelInfoClass(client, buffer);
 				}
 				case 4:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Leto");
 					PanelInfoClass(client, buffer);
 				}
 				case 5:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Ciri");
 					PanelInfoClass(client, buffer);
 				}
 				case 6:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Yennefer");
 					PanelInfoClass(client, buffer);
 				}
 				case 7:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Triss");
 					PanelInfoClass(client, buffer);
 				}
 				case 8:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Keira");
 					PanelInfoClass(client, buffer);
 				}
 				case 9:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Felippa");
 					PanelInfoClass(client, buffer);
 				}
 				case 10:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Fringilla");
 					PanelInfoClass(client, buffer);
 				}
 				case 11:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Ge'els");
 					PanelInfoClass(client, buffer);
 				}
 				case 12:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Imlerith");
 					PanelInfoClass(client, buffer);
 				}
 				case 13:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Caranthir");
 					PanelInfoClass(client, buffer);
 				}
 				case 14:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Nithral");
 					PanelInfoClass(client, buffer);
 				}
 				case 15:
 				{
-					char buffer[512];
+					char buffer[600];
 					Format(buffer, sizeof(buffer), "%t", "Eredin");
 					PanelInfoClass(client, buffer);
 				}
@@ -260,7 +263,7 @@ public int MenuClasses_Handler(Menu menu, MenuAction action, int client, int a)
 	return 0;
 }
 
-public Action PanelInfoClass(client, char msg[512])
+public Action PanelInfoClass(client, char msg[600])
 {
 	char buffer[10];
 	Format(buffer, sizeof(buffer), "%t", "Back");
@@ -287,7 +290,7 @@ public int BlankHelp(Menu menu, MenuAction action, int param1, int param2)
 
 public Action Command_Stats(int client, int args)
 {	
-	char buffer[512];
+	char buffer[600];
 	Format(buffer, sizeof(buffer), "%t", "Stats");
 	PanelInfoClass(client, buffer);
 	return Plugin_Handled;
